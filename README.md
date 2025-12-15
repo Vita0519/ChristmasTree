@@ -16,16 +16,15 @@
 
 ## 🚀 快速开始 (How to Run)
 
-### 方法 1: 直接本地双击html文件打开（推荐）
+### 方法 1: fork这个项目（推荐）
 
-### 方法 2: 使用 VS Code
-1. 安装 VS Code 插件: **Live Server**.
-2. 右键点击 `index.html`，选择 **"Open with Live Server"**.
+开启 Pages: 进入仓库 Settings -> 左侧 Pages -> 在 Branch 处选择 main (或 master) -> 点击 Save。
+访问: 等待几分钟，访问 https://你的用户名.github.io/仓库名/。
 
-方法 3: Node.js
-```bash
-npx serve .
-```
+<img width="2402" height="1350" alt="image" src="https://github.com/user-attachments/assets/ccac4efd-803f-4c47-8e67-9b4e0ed3a2ed" />
+
+方法 2: 直接本地双击html文件打开
+
 ## 🛠️ 技术栈 (Tech Stack)
 - Three.js (r160): 核心 3D 渲染引擎。
 
