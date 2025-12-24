@@ -1,15 +1,21 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Magic Christmas Tree - Hand Interaction</title>
+    <title>圣诞快乐~</title>
     <style>
-        body { 
-            margin: 0; overflow: hidden; background-color: #000; 
-            font-family: 'Helvetica Neue', Arial, sans-serif; 
-            display: flex; justify-content: center; align-items: center; 
-            height: 100vh; user-select: none;
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: #000;
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            user-select: none;
         }
 
         /* 4:3 容器 */
@@ -21,86 +27,195 @@
             border-radius: 4px;
         }
 
-        #canvas-container { width: 100%; height: 100%; display: block; }
-        
-        /* 摄像头窗口 */
-        #video-container {
-            position: absolute; top: 20px; right: 20px; width: 160px; height: 120px; z-index: 2;
-            border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 12px; overflow: hidden;
-            transform: scaleX(-1); /* 镜像翻转 */
-            box-shadow: 0 4px 20px rgba(0,0,0,0.6);
-            background: rgba(0,0,0,0.8);
-            transition: opacity 0.5s ease;
+        #canvas-container {
+            width: 100%;
+            height: 100%;
+            display: block;
         }
-        #input-video { 
-            width: 100%; height: 100%; object-fit: cover; opacity: 0.5; 
-            position: absolute; top: 0; left: 0;
+
+
+        #input-video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0.5;
+            position: absolute;
+            top: 0;
+            left: 0;
         }
+
         #skeleton-canvas {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 10;
         }
 
         /* UI 层 */
         #ui-layer {
-            position: absolute; top: 40px; left: 40px; z-index: 3; pointer-events: none;
-            color: #fff; text-shadow: 0 2px 10px rgba(0,0,0,0.9);
+            position: absolute;
+            top: 40px;
+            left: 40px;
+            z-index: 3;
+            pointer-events: none;
+            color: #fff;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.9);
             transition: opacity 0.5s;
         }
 
         h1 {
-            font-weight: 200; letter-spacing: 6px; text-transform: uppercase; font-size: 2rem; margin: 0 0 15px 0;
-            background: linear-gradient(to right, #fff, #ffd700, #fff); 
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            font-weight: 200;
+            letter-spacing: 6px;
+            text-transform: uppercase;
+            font-size: 2rem;
+            margin: 0 0 15px 0;
+            background: linear-gradient(to right, #fff, #ffd700, #fff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
 
         .instructions {
-            font-size: 0.85rem; color: #ccc; line-height: 1.8; max-width: 300px;
-            background: rgba(10, 10, 10, 0.6); padding: 20px; border-radius: 12px;
-            border-left: 2px solid #d4af37; backdrop-filter: blur(8px);
+            font-size: 0.85rem;
+            color: #ccc;
+            line-height: 1.8;
+            max-width: 300px;
+            background: rgba(10, 10, 10, 0.6);
+            padding: 20px;
+            border-radius: 12px;
+            border-left: 2px solid #d4af37;
+            backdrop-filter: blur(8px);
             border-top: 1px solid rgba(255, 255, 255, 0.05);
         }
-        .highlight { color: #d4af37; font-weight: 600; padding: 0 4px; }
-        #status-text { margin-bottom: 12px; font-size: 1.1rem; color: #fff; font-weight: 500; display: flex; align-items: center; gap: 8px;}
-        .status-dot { width: 8px; height: 8px; border-radius: 50%; background: #555; display: inline-block;}
+
+        .highlight {
+            color: #d4af37;
+            font-weight: 600;
+            padding: 0 4px;
+        }
+
+        #status-text {
+            margin-bottom: 12px;
+            font-size: 1.1rem;
+            color: #fff;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #555;
+            display: inline-block;
+        }
 
         /* 按钮 */
         #upload-btn {
-            pointer-events: auto; 
-            background: rgba(255,255,255,0.1); 
-            border: 1px solid rgba(255,255,255,0.2);
-            color: #fff; padding: 12px 28px; cursor: pointer; text-transform: uppercase;
-            font-size: 0.75rem; margin-top: 25px; transition: all 0.3s ease; 
-            letter-spacing: 2px; border-radius: 30px;
+            pointer-events: auto;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #fff;
+            padding: 12px 28px;
+            cursor: pointer;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            margin-top: 25px;
+            transition: all 0.3s ease;
+            letter-spacing: 2px;
+            border-radius: 30px;
         }
-        #upload-btn:hover { background: #fff; color: #000; box-shadow: 0 0 25px rgba(255,255,255,0.4); }
-        #file-input { display: none; }
-        
+
+        #upload-btn:hover {
+            background: #fff;
+            color: #000;
+            box-shadow: 0 0 25px rgba(255, 255, 255, 0.4);
+        }
+
+        #file-input {
+            display: none;
+        }
+
         #loading {
-            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            color: #d4af37; font-size: 1rem; letter-spacing: 4px; z-index: 10; 
-            pointer-events: none; transition: opacity 0.5s; font-weight: 300;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #d4af37;
+            font-size: 1rem;
+            letter-spacing: 4px;
+            z-index: 10;
+            pointer-events: none;
+            transition: opacity 0.5s;
+            font-weight: 300;
         }
 
         /* 沉浸模式切换 */
         #fullscreen-btn {
-            position: absolute; bottom: 30px; right: 30px; z-index: 20;
-            background: rgba(0,0,0,0.3); color: #d4af37; border: 1px solid rgba(212, 175, 55, 0.3);
-            width: 44px; height: 44px; border-radius: 50%; cursor: pointer;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 1.2rem; transition: all 0.3s;
+            position: absolute;
+            bottom: 30px;
+            right: 30px;
+            z-index: 20;
+            background: rgba(0, 0, 0, 0.3);
+            color: #d4af37;
+            border: 1px solid rgba(212, 175, 55, 0.3);
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            transition: all 0.3s;
             backdrop-filter: blur(4px);
         }
-        #fullscreen-btn:hover { background: #d4af37; color: #000; border-color: #d4af37; }
+
+        #fullscreen-btn:hover {
+            background: #d4af37;
+            color: #000;
+            border-color: #d4af37;
+        }
 
         /* 隐藏 UI 状态 */
-        .hide-ui #ui-layer, 
-        .hide-ui #video-container { 
-            opacity: 0; pointer-events: none; 
+        .hide-ui #ui-layer,
+        .hide-ui #video-container {
+            opacity: 0;
+            pointer-events: none;
         }
-        .hide-ui #fullscreen-btn { opacity: 0.5; }
-        .hide-ui #fullscreen-btn:hover { opacity: 1; }
+
+        .hide-ui #fullscreen-btn {
+            opacity: 0.5;
+        }
+
+        .hide-ui #fullscreen-btn:hover {
+            opacity: 1;
+        }
+
+        /* 雪花提示 */
+        #snowflake-instructions {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #fff;
+            font-size: 1.5rem;
+            text-align: center;
+            z-index: 5;
+            pointer-events: none;
+            opacity: 1;
+            transition: opacity 1s;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.7);
+        }
+
+        .hidden {
+            display: none;
+        }
     </style>
-    
+
     <script type="importmap">
         {
             "imports": {
@@ -110,710 +225,1899 @@
         }
     </script>
 </head>
+
 <body>
 
     <div id="canvas-wrapper">
         <div id="canvas-container"></div>
-        
-        <div id="video-container">
-            <video id="input-video" autoplay playsinline muted></video>
-            <canvas id="skeleton-canvas"></canvas>
-        </div>
-
-        <button id="fullscreen-btn" onclick="toggleUI()" title="切换沉浸模式">⛶</button>
-
         <div id="ui-layer">
-            <h1>Merry Christmas</h1>
-            <div id="status-text"><span class="status-dot" id="status-dot"></span><span id="status-msg">初始化引擎...</span></div>
-            <div class="instructions">
-                • <span class="highlight">握拳</span> : 聚合圣诞树<br/>
-                • <span class="highlight">张手</span> : 星云散开<br/>
-                • <span class="highlight">挥动</span> : 旋转视图 (仅散开时)<br/>
-                • <span class="highlight">捏合</span> : 抓取照片 (需上传)
-            </div>
-            <button id="upload-btn" onclick="document.getElementById('file-input').click()">上传纪念照片</button>
-            <input type="file" id="file-input" multiple accept="image/*">
+            <div id="loading"></div>
+            <div id="snowflake-instructions"></div>
         </div>
-        <div id="loading">CRAFTING MAGIC...</div>
-    </div>
 
-    <script type="module">
-        import * as THREE from 'three';
-        import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
-        import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
-        import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
-        import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
-        import { FilesetResolver, HandLandmarker } from 'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.0';
 
-        // --- 全局配置 ---
-        const CONFIG = {
-            goldCount: 500,     
-            silverCount: 500,   
-            gemCount: 300,      
-            emeraldCount: 300,  
-            dustCount: 1000,    
-            treeHeight: 75,
-            maxRadius: 30,
-            camDistance: 110,
-            bloomStrength: 0.7,
-            bloomThreshold: 0.35,
-            bloomRadius: 0.6
-        };
+        <script type="module">
+            import * as THREE from 'three';
+            import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+            import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+            import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+            import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 
-        const STATE = { TREE: 'tree', SCATTER: 'scatter', ZOOM: 'zoom' };
-        let currentState = STATE.TREE;
-        let targetState = STATE.TREE;
-        
-        // --- Three.js 变量 ---
-        let scene, camera, renderer, composer;
-        let mainGroup = new THREE.Group();
-        let goldMesh, silverMesh, gemMesh, emeraldMesh, dustSystem;
-        let photoMeshes = [];
-        let zoomTargetIndex = -1;
-        
-        // --- 逻辑变量 ---
-        let logicData = { gold: [], silver: [], gem: [], emerald: [], dust: [], star: null };
-        const dummy = new THREE.Object3D();
-        const _tempVec3 = new THREE.Vector3(); // 复用变量，减少GC
-        const _tempEuler = new THREE.Euler();
-        let time = 0;
-        
-        // --- 交互变量 ---
-        let handPos = { x: 0, y: 0 };
-        let lastHandPos = { x: 0, y: 0 };
-        let isHandPresent = false;
-        let rotationVelocity = { x: 0, y: 0 }; // 物理惯性
+            // --- 全局配置 ---
+            const CONFIG = {
+                goldCount: 500,
+                silverCount: 500,
+                gemCount: 300,
+                emeraldCount: 300,
+                dustCount: 1000,
+                treeHeight: 75,
+                maxRadius: 30,
+                camDistance: 110,
+                bloomStrength: 0.7,
+                bloomThreshold: 0.35,
+                bloomRadius: 0.6,
+                snowflakeCount: 300,       // 雪花主要粒子数量
+                snowflakeSize: 1.5,        // 雪花大小
+                snowflakeRadius: 20,      // 雪花半径
+                snowflakeBranchCount: 6,       // 雪花分支数量（六角雪花）
+                snowflakeArmLength: 35,        // 雪花臂长，让雪花更大
+                snowflakeArmWidth: 10,          // 增加雪花臂宽
+                snowflakeParticlesPerArm: 40,  // 主臂粒子数量
+                snowflakeParticleSize: 2,    // 粒子大小
+                snowflakeCenterParticles: 100,  // 中心粒子
+                snowflakeFogParticles: 200,    // 雾化粒子
+                snowflakeSideBranchParticles: 12,  // 新增：侧分支粒子数量
+                snowflakeSubBranchParticles: 8,    // 新增：次级分支粒子数量
+                snowCount: 1000,           // 雪花粒子数量
+                snowSize: 2,             // 雪花大小
+                snowFallSpeed: 0.5,        // 下落速度
+                snowDriftSpeed: 0.1,       // 飘动速度
+                snowAreaWidth: 120,        // 降雪区域宽度
+                snowAreaDepth: 120,        // 降雪区域深度
+                snowAreaHeight: 100,       // 降雪区域高度
+                snowColor: 0xffffff,        // 雪花颜色
+                zoomDistance: 40,          // 照片放大时的距离（相机前方40单位）
+                zoomSpeed: 0.1             // 照片移动速度
+            };
+            let snowParticles = null;
+            let snowGeometry = null;
+            let snowMaterial = null;
+            let snowPositions = null;
+            let snowVelocities = [];
 
-        // --- UI 控制 ---
-        window.toggleUI = function() {
-            document.getElementById('canvas-wrapper').classList.toggle('hide-ui');
-        };
+            // 新增雪花状态
+            const STATE = {
+                INITIAL_SNOWFLAKE: 'initial_snowflake',
+                TREE: 'tree',
+                SCATTER: 'scatter',
+                ZOOM: 'zoom'
+            };
+            let currentState = STATE.INITIAL_SNOWFLAKE;  // 初始状态改为雪花
+            let targetState = STATE.INITIAL_SNOWFLAKE;
+            let isViewingPhoto = false;
+            let zoomStartTime = 0;
 
-        function updateStatus(msg, color = '#fff') {
-            document.getElementById('status-msg').innerHTML = msg;
-            document.getElementById('status-dot').style.background = color;
-        }
+            // --- Three.js 变量 ---
+            let scene, camera, renderer, composer;
+            let mainGroup = new THREE.Group();
+            let particleSprites = []; // 存储粒子精灵
+            let photoMeshes = [];
+            let zoomTargetIndex = -1;
 
-        // --- 初始化场景 ---
-        function initThree() {
-            const wrapper = document.getElementById('canvas-wrapper');
-            const container = document.getElementById('canvas-container');
-            
-            scene = new THREE.Scene();
-            scene.background = new THREE.Color(0x050505); 
-            scene.fog = new THREE.FogExp2(0x050505, 0.002);
+            // 新增雪花相关变量
+            let snowflakeSystem = null;
+            let snowflakeParticles = [];
 
-            updateDimensions(); // 计算初始尺寸
+            // --- 逻辑变量 ---
+            let logicData = { particles: [], dust: [], star: null };
+            const dummy = new THREE.Object3D();
+            const _tempVec3 = new THREE.Vector3(); // 复用变量，减少GC
+            const _tempEuler = new THREE.Euler();
+            let time = 0;
 
-            camera = new THREE.PerspectiveCamera(50, wrapper.clientWidth / wrapper.clientHeight, 0.1, 1000);
-            camera.position.set(0, 0, CONFIG.camDistance);
+            // --- 交互变量 ---
+            let handPos = { x: 0, y: 0 };
+            let lastHandPos = { x: 0, y: 0 };
+            let isHandPresent = false;
+            let rotationVelocity = { x: 0, y: 0 }; // 物理惯性
+            let touchStartX = 0;
+            let touchStartY = 0;
+            let touchStartTime = 0;
+            let isTouching = false;
+            let isLongPress = false;
+            let longPressTimer = null;
+            let lastTapTime = 0;
+            let lastTapX = 0;
+            let lastTapY = 0;
+            const TAP_THRESHOLD = 300; // 双击时间阈值(ms)
+            const TAP_DISTANCE_THRESHOLD = 20; // 双击距离阈值(px)
+            const LONG_PRESS_THRESHOLD = 500; // 长按时间阈值(ms)
 
-            renderer = new THREE.WebGLRenderer({ antialias: false, powerPreference: "high-performance", stencil: false });
-            renderer.setSize(wrapper.clientWidth, wrapper.clientHeight);
-            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5)); // 限制DPR以优化性能
-            renderer.toneMapping = THREE.ACESFilmicToneMapping;
-            renderer.toneMappingExposure = 1.1;
-            container.appendChild(renderer.domElement);
+            // --- UI 控制 ---
+            window.toggleUI = function () {
+                document.getElementById('canvas-wrapper').classList.toggle('hide-ui');
+            };
 
-            const pmremGenerator = new THREE.PMREMGenerator(renderer);
-            scene.environment = pmremGenerator.fromScene(new RoomEnvironment(), 0.04).texture;
+            // function updateStatus(msg, color = '#fff') {
+            //     document.getElementById('status-msg').innerHTML = msg;
+            //     document.getElementById('status-dot').style.background = color;
+            // }
 
-            // 灯光系统
-            const ambientLight = new THREE.AmbientLight(0xffffff, 0.2);
-            scene.add(ambientLight);
+            // --- 初始化场景 ---
+            function initThree() {
+                const wrapper = document.getElementById('canvas-wrapper');
+                const container = document.getElementById('canvas-container');
 
-            const spotLight = new THREE.SpotLight(0xffddaa, 100);
-            spotLight.position.set(30, 80, 50);
-            spotLight.angle = Math.PI / 4;
-            spotLight.penumbra = 1;
-            scene.add(spotLight);
+                scene = new THREE.Scene();
+                scene.background = new THREE.Color(0x050505);
+                scene.fog = new THREE.FogExp2(0x050505, 0.002);
 
-            const blueLight = new THREE.PointLight(0x4488ff, 50, 200);
-            blueLight.position.set(-40, -20, 40);
-            scene.add(blueLight);
-            
-            // 后处理
-            const renderScene = new RenderPass(scene, camera);
-            const bloomPass = new UnrealBloomPass(new THREE.Vector2(wrapper.clientWidth, wrapper.clientHeight), 1.5, 0.4, 0.85);
-            bloomPass.threshold = CONFIG.bloomThreshold;
-            bloomPass.strength = CONFIG.bloomStrength;
-            bloomPass.radius = CONFIG.bloomRadius;
+                updateDimensions(); // 计算初始尺寸
 
-            composer = new EffectComposer(renderer);
-            composer.addPass(renderScene);
-            composer.addPass(bloomPass);
+                camera = new THREE.PerspectiveCamera(50, wrapper.clientWidth / wrapper.clientHeight, 0.1, 1000);
+                camera.position.set(0, 0, CONFIG.camDistance);
 
-            createMaterialsAndMeshes();
-            createDust();
-            createStarField();
+                renderer = new THREE.WebGLRenderer({ antialias: false, powerPreference: "high-performance", stencil: false });
+                renderer.setSize(wrapper.clientWidth, wrapper.clientHeight);
+                renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5)); // 限制DPR以优化性能
+                renderer.toneMapping = THREE.ACESFilmicToneMapping;
+                renderer.toneMappingExposure = 1.0;
+                container.appendChild(renderer.domElement);
+
+                const pmremGenerator = new THREE.PMREMGenerator(renderer);
+                scene.environment = pmremGenerator.fromScene(new RoomEnvironment(), 0.04).texture;
+
+                // 灯光系统
+                const ambientLight = new THREE.AmbientLight(0xffffff, 0.2);
+                scene.add(ambientLight);
+
+                const spotLight = new THREE.SpotLight(0xffddaa, 100);
+                spotLight.position.set(30, 80, 50);
+                spotLight.angle = Math.PI / 4;
+                spotLight.penumbra = 1;
+                scene.add(spotLight);
+
+                const blueLight = new THREE.PointLight(0x4488ff, 50, 200);
+                blueLight.position.set(-40, -20, 40);
+                scene.add(blueLight);
+
+                // 后处理
+                const renderScene = new RenderPass(scene, camera);
+                const bloomPass = new UnrealBloomPass(new THREE.Vector2(wrapper.clientWidth, wrapper.clientHeight), 1.5, 0.4, 0.85);
+                bloomPass.threshold = CONFIG.bloomThreshold;
+                bloomPass.strength = CONFIG.bloomStrength;
+                bloomPass.radius = CONFIG.bloomRadius;
+
+                composer = new EffectComposer(renderer);
+                composer.addPass(renderScene);
+                composer.addPass(bloomPass);
+
+                // 根据状态初始化内容
+                if (currentState === STATE.INITIAL_SNOWFLAKE) {
+                    createSnowflakeSystem();
+                    // 添加全局点击监听（包括移动端）
+                    function handleInitialTap(e) {
+                        if (currentState !== STATE.INITIAL_SNOWFLAKE) return;
+
+                        // 获取点击坐标
+                        let clientX, clientY;
+                        if (e.type.includes('touch')) {
+                            const touch = e.touches[0] || e.changedTouches[0];
+                            clientX = touch.clientX;
+                            clientY = touch.clientY;
+                        } else {
+                            clientX = e.clientX;
+                            clientY = e.clientY;
+                        }
+
+                        // 触发雪花飞散
+                        const fakeEvent = {
+                            clientX: clientX,
+                            clientY: clientY,
+                            preventDefault: () => { },
+                            stopPropagation: () => { }
+                        };
+
+                        handleClick(fakeEvent);
+
+                        // 阻止默认行为
+                        e.preventDefault();
+                        e.stopPropagation();
+
+                        // 移除监听器，避免重复触发
+                        document.removeEventListener('click', handleInitialTap);
+                        document.removeEventListener('touchend', handleInitialTap);
+                    }
+
+                    // 添加监听
+                    document.addEventListener('click', handleInitialTap, { passive: false });
+                    document.addEventListener('touchend', handleInitialTap, { passive: false });
+
+                    console.log("雪花点击监听器已添加");
+                
+                // 显示雪花提示
+                setTimeout(() => {
+                    const instructions = document.getElementById('snowflake-instructions');
+                    instructions.innerHTML = "";
+                    instructions.style.opacity = 1;
+                }, 500);
+            } else {
+                createMaterialsAndMeshes();
+                createDust();
+                createStarField();
+            }
 
             scene.add(mainGroup);
-            window.addEventListener('resize', onWindowResize);
-        }
 
-        function updateDimensions() {
-            const targetAspect = 4 / 3;
-            const windowAspect = window.innerWidth / window.innerHeight;
-            let width, height;
+            // 添加点击事件监听器
+            renderer.domElement.addEventListener('click', handleClick);
 
-            if (windowAspect > targetAspect) {
-                height = window.innerHeight;
-                width = height * targetAspect;
-            } else {
-                width = window.innerWidth;
-                height = width / targetAspect;
-            }
-
-            const wrapper = document.getElementById('canvas-wrapper');
-            wrapper.style.width = width + 'px';
-            wrapper.style.height = height + 'px';
-            return { width, height };
-        }
-
-        function createMaterialsAndMeshes() {
-            // 使用 MeshPhysicalMaterial 获得更好的金属质感
-            const goldMat = new THREE.MeshPhysicalMaterial({
-                color: 0xffaa00, metalness: 1.0, roughness: 0.15, clearcoat: 1.0, emissive: 0xaa5500, emissiveIntensity: 0.1
+            window.addEventListener('load', function () {
+                const instructions = document.getElementById('snowflake-instructions');
+                instructions.innerHTML = "";
+                instructions.style.opacity = 1;
             });
-            const silverMat = new THREE.MeshPhysicalMaterial({
-                color: 0xffffff, metalness: 0.9, roughness: 0.2, clearcoat: 1.0
-            });
-            const gemMat = new THREE.MeshPhysicalMaterial({
-                color: 0xff0044, metalness: 0.1, roughness: 0.0, transmission: 0.6, thickness: 1.5, emissive: 0x550011, emissiveIntensity: 0.4
-            });
-            const emeraldMat = new THREE.MeshPhysicalMaterial({
-                color: 0x00aa55, metalness: 0.2, roughness: 0.1, transmission: 0.5, thickness: 1.5, emissive: 0x002211, emissiveIntensity: 0.3
-            });
-
-            goldMesh = createInstancedMesh(new THREE.SphereGeometry(0.7, 12, 12), goldMat, CONFIG.goldCount, logicData.gold);
-            silverMesh = createInstancedMesh(new THREE.BoxGeometry(0.8, 0.8, 0.8), silverMat, CONFIG.silverCount, logicData.silver);
-            gemMesh = createInstancedMesh(new THREE.OctahedronGeometry(0.8, 0), gemMat, CONFIG.gemCount, logicData.gem);
-            emeraldMesh = createInstancedMesh(new THREE.ConeGeometry(0.5, 1.2, 6), emeraldMat, CONFIG.emeraldCount, logicData.emerald);
-
-            // 树顶之星
-            const starGeo = new THREE.OctahedronGeometry(3.0, 0);
-            const starMat = new THREE.MeshPhysicalMaterial({ 
-                color: 0xffffff, metalness:0.8, roughness:0, emissive:0xffffee, emissiveIntensity:1.5 
-            });
-            const star = new THREE.Mesh(starGeo, starMat);
-            star.userData = { 
-                treePos: new THREE.Vector3(0, CONFIG.treeHeight/2 + 2.5, 0), 
-                scatterPos: new THREE.Vector3(0, 60, 0) 
-            };
-            star.position.copy(star.userData.treePos);
-            mainGroup.add(star);
-            logicData.star = star;
-        }
-
-        function createInstancedMesh(geo, mat, count, dataArray) {
-            const mesh = new THREE.InstancedMesh(geo, mat, count);
-            mesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
-            mainGroup.add(mesh);
-            
-            // 预生成每个粒子的逻辑数据
-            for (let i = 0; i < count; i++) {
-                const h = Math.random() * CONFIG.treeHeight - CONFIG.treeHeight/2;
-                const normH = (h + CONFIG.treeHeight/2) / CONFIG.treeHeight;
-                // 树形：下宽上窄
-                const rMax = CONFIG.maxRadius * (1 - normH) * 1.1; 
-                
-                const r = Math.sqrt(Math.random()) * rMax; 
-                const theta = Math.random() * Math.PI * 2;
-                
-                const treePos = new THREE.Vector3(r * Math.cos(theta), h, r * Math.sin(theta));
-                // 散开：球形分布
-                const scatterPos = randomSpherePoint(40 + Math.random()*50);
-
-                dataArray.push({
-                    treePos: treePos,
-                    scatterPos: scatterPos,
-                    currentPos: treePos.clone(),
-                    scale: 0.5 + Math.random() * 0.9,
-                    // 存储独立的旋转速度
-                    rotSpeed: new THREE.Euler(Math.random()*0.02, Math.random()*0.02, 0),
-                    rotation: new THREE.Euler(Math.random()*Math.PI, Math.random()*Math.PI, 0)
-                });
+            setupTouchMouseEvents();
+                // if (currentState === STATE.TREE) {
+                //     // 延迟加载，确保场景已准备好
+                //     console.log("开始加载预设图片");
+                //     setTimeout(loadPresetPhotos, 1000);
+                // }
             }
-            return mesh;
-        }
+            function setupTouchMouseEvents() {
+                const canvas = renderer.domElement;
 
-        function randomSpherePoint(r) {
-            const u = Math.random(), v = Math.random();
-            const theta = 2 * Math.PI * u;
-            const phi = Math.acos(2 * v - 1);
-            return new THREE.Vector3(
-                r * Math.sin(phi) * Math.cos(theta), 
-                r * Math.sin(phi) * Math.sin(theta), 
-                r * Math.cos(phi)
-            );
-        }
+                // 鼠标事件
+                canvas.addEventListener('mousedown', handleMouseDown);
+                canvas.addEventListener('mousemove', handleMouseMove);
+                canvas.addEventListener('mouseup', handleMouseUp);
+                canvas.addEventListener('dblclick', handleDoubleClick);
 
-        function createDust() {
-            const geo = new THREE.BufferGeometry();
-            const pos = new Float32Array(CONFIG.dustCount * 3);
-            
-            for(let i=0; i<CONFIG.dustCount; i++) {
-                const h = Math.random() * CONFIG.treeHeight - CONFIG.treeHeight/2;
-                const r = Math.random() * CONFIG.maxRadius + 5;
-                const theta = Math.random() * Math.PI * 2;
-                
-                const x = r*Math.cos(theta);
-                const z = r*Math.sin(theta);
-                
-                pos[i*3] = x; pos[i*3+1] = h; pos[i*3+2] = z;
-                
-                logicData.dust.push({
-                    treePos: new THREE.Vector3(x, h, z),
-                    scatterPos: randomSpherePoint(70),
-                    currentPos: new THREE.Vector3(x, h, z),
-                    velocity: Math.random() * 0.05 + 0.02
-                });
+                // 触摸事件
+                canvas.addEventListener('touchstart', handleTouchStart);
+                canvas.addEventListener('touchmove', handleTouchMove);
+                canvas.addEventListener('touchend', handleTouchEnd);
+
+                // 防止默认行为
+                canvas.addEventListener('contextmenu', (e) => e.preventDefault());
             }
-            geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
-            
-            const mat = new THREE.PointsMaterial({ 
-                color: 0xffd700, size: 0.5, transparent: true, opacity: 0.4, 
-                blending: THREE.AdditiveBlending, depthWrite: false 
-            });
-            dustSystem = new THREE.Points(geo, mat);
-            mainGroup.add(dustSystem);
-        }
+            function handleMouseDown(e) {
+                const rect = renderer.domElement.getBoundingClientRect();
+                touchStartX = e.clientX - rect.left;
+                touchStartY = e.clientY - rect.top;
+                touchStartTime = Date.now();
+                isTouching = true;
 
-        function createStarField() {
-            const geo = new THREE.BufferGeometry();
-            const pos = [];
-            for(let i=0; i<800; i++) {
-                pos.push((Math.random()-0.5)*800, (Math.random()-0.5)*800, (Math.random()-0.5)*800);
-            }
-            geo.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
-            const stars = new THREE.Points(geo, new THREE.PointsMaterial({color: 0x666666, size: 1.0, transparent: true, opacity: 0.6}));
-            scene.add(stars);
-        }
-
-        // --- 核心动画循环 ---
-        function animate() {
-            requestAnimationFrame(animate);
-            time += 0.01;
-
-            // 1. 更新实例化网格
-            updateMeshLogic(goldMesh, logicData.gold);
-            updateMeshLogic(silverMesh, logicData.silver);
-            updateMeshLogic(gemMesh, logicData.gem);
-            updateMeshLogic(emeraldMesh, logicData.emerald);
-
-            // 2. 更新粒子与照片
-            updateDustLogic();
-            updatePhotoLogic();
-            
-            // 3. 更新树顶星
-            if (logicData.star) {
-                let target = currentState === STATE.TREE ? logicData.star.userData.treePos : logicData.star.userData.scatterPos;
-                logicData.star.position.lerp(target, 0.05);
-                logicData.star.rotation.y += 0.01;
-            }
-
-            // 4. 全局旋转与惯性处理
-            handlePhysicsRotation();
-
-            composer.render();
-        }
-
-        function handlePhysicsRotation() {
-            if (currentState === STATE.ZOOM) {
-                // 缩放模式下停止旋转，方便观看
-                rotationVelocity.x *= 0.8;
-                rotationVelocity.y *= 0.8;
-            } else if (currentState === STATE.SCATTER) {
-                if (isHandPresent) {
-                    const deltaX = handPos.x - lastHandPos.x;
-                    const deltaY = handPos.y - lastHandPos.y;
-                    
-                    // 增加灵敏度但限制最大速度
-                    if (Math.abs(deltaX) > 0.001) rotationVelocity.y += deltaX * 0.2;
-                    if (Math.abs(deltaY) > 0.001) rotationVelocity.x += deltaY * 0.1;
-                    
-                    lastHandPos.x = handPos.x;
-                    lastHandPos.y = handPos.y;
-                }
-                
-                // 应用速度
-                mainGroup.rotation.y += rotationVelocity.y;
-                mainGroup.rotation.x += rotationVelocity.x;
-                
-                // 阻尼效果
-                rotationVelocity.y *= 0.95; 
-                rotationVelocity.x *= 0.95; 
-                
-                // 回正 X 轴
-                mainGroup.rotation.x *= 0.98; 
-            } else {
-                // 树形态自动旋转
-                mainGroup.rotation.y += 0.004;
-                mainGroup.rotation.x *= 0.95;
-            }
-        }
-
-        function updateMeshLogic(mesh, dataArray) {
-            const isZoom = currentState === STATE.ZOOM;
-            const isTree = currentState === STATE.TREE;
-
-            for (let i = 0; i < dataArray.length; i++) {
-                const item = dataArray[i];
-                let target = isTree ? item.treePos : item.scatterPos;
-                if(isZoom) target = item.scatterPos; // 放大时背景保持散开
-
-                // 散开时的呼吸效果
-                if (!isTree) item.currentPos.y += Math.sin(time + i * 0.1) * 0.01;
-
-                // 位置插值
-                item.currentPos.lerp(target, 0.08);
-                
-                // 自转
-                item.rotation.x += item.rotSpeed.x;
-                item.rotation.y += item.rotSpeed.y;
-
-                let s = item.scale;
-                if(isZoom) s *= 0.5; // 聚焦时背景粒子变小，突出照片
-
-                dummy.position.copy(item.currentPos);
-                dummy.rotation.copy(item.rotation);
-                dummy.scale.setScalar(s);
-                dummy.updateMatrix();
-                mesh.setMatrixAt(i, dummy.matrix);
-            }
-            mesh.instanceMatrix.needsUpdate = true;
-        }
-
-        function updateDustLogic() {
-            const positions = dustSystem.geometry.attributes.position.array;
-            const isTree = currentState === STATE.TREE;
-
-            for(let i=0; i<logicData.dust.length; i++) {
-                const item = logicData.dust[i];
-                
-                if (isTree) {
-                    // 树形态：粒子向上流动并限制在圆锥内
-                    item.currentPos.y += item.velocity;
-                    if(item.currentPos.y > CONFIG.treeHeight/2) item.currentPos.y = -CONFIG.treeHeight/2;
-                    
-                    // 简单的圆柱限制，避免计算过于复杂
-                    const rMax = CONFIG.maxRadius * (1 - (item.currentPos.y + CONFIG.treeHeight/2)/CONFIG.treeHeight) + 5;
-                    const rCurr = Math.sqrt(item.currentPos.x**2 + item.currentPos.z**2);
-                    if(rCurr > rMax) {
-                        item.currentPos.x *= 0.95;
-                        item.currentPos.z *= 0.95;
+                // 开始长按检测
+                longPressTimer = setTimeout(() => {
+                    if (isTouching) {
+                        isLongPress = true;
+                        startPhotoSelection(touchStartX, touchStartY);
+                        // updateStatus("长按激活：选择照片", "#ffd700");
                     }
+                }, LONG_PRESS_THRESHOLD);
+            }
+
+            function handleMouseMove(e) {
+                if (!isTouching) return;
+
+                const rect = renderer.domElement.getBoundingClientRect();
+                const currentX = e.clientX - rect.left;
+                const currentY = e.clientY - rect.top;
+
+                // 计算移动距离
+                const deltaX = currentX - touchStartX;
+                const deltaY = currentY - touchStartY;
+
+                if (isLongPress) {
+                    // 长按拖动：移动选中的照片
+                    handleLongPressMove(deltaX, deltaY);
                 } else {
-                    // 散开形态：飞向随机点
-                    item.currentPos.lerp(item.scatterPos, 0.05);
+                    // 普通滑动：旋转视图或切换状态
+                    handleNormalSwipe(deltaX, deltaY);
                 }
 
-                positions[i*3] = item.currentPos.x;
-                positions[i*3+1] = item.currentPos.y;
-                positions[i*3+2] = item.currentPos.z;
+                // 更新起始位置
+                touchStartX = currentX;
+                touchStartY = currentY;
             }
-            dustSystem.geometry.attributes.position.needsUpdate = true;
-        }
 
-        function updatePhotoLogic() {
-            // 获取相机在 mainGroup 局部坐标系下的反向位置
-            // 用于让照片始终朝向屏幕
-            _tempVec3.copy(camera.position).applyMatrix4(mainGroup.matrixWorld.clone().invert());
+            function handleMouseUp(e) {
+                if (longPressTimer) {
+                    clearTimeout(longPressTimer);
+                    longPressTimer = null;
+                }
+                if (currentState === STATE.ZOOM && isLongPress) {
+                    const pressDuration = Date.now() - touchStartTime;
+                    if (pressDuration < LONG_PRESS_THRESHOLD) {
+                        isLongPress = false; // 取消长按状态
+                    }
+                }
 
-            photoMeshes.forEach((mesh, idx) => {
-                let targetPos, targetScale = 2.0; 
-                
-                if (currentState === STATE.ZOOM && idx === zoomTargetIndex) {
-                    // 1. 计算镜头正前方80单位的世界坐标
-                    const worldTarget = new THREE.Vector3(0, 0, 80);
-                    worldTarget.applyMatrix4(camera.matrixWorld); // 转换到世界坐标(如果相机动了)
-                    
-                    // 简单做法：直接取相机Z轴前方固定距离
-                    // 由于 mainGroup 在转动，我们需要求这一点的局部坐标
-                    // 实际上让照片飞到 (0,0,80) 相对于相机的点更简单，但为了保持层级，我们转换坐标
-                    
-                    // 简化策略：将目标设为相机前方，并应用 group 的逆变换
-                    const camFront = new THREE.Vector3(0, 0, 80); // 相机空间
-                    camFront.applyMatrix4(camera.matrixWorld); // 世界空间
-                    targetPos = mainGroup.worldToLocal(camFront); // 局部空间
+                if (!isLongPress && isTouching) {
+                    // 检测是否双击
+                    const currentTime = Date.now();
+                    const rect = renderer.domElement.getBoundingClientRect();
+                    const currentX = e.clientX - rect.left;
+                    const currentY = e.clientY - rect.top;
 
-                    targetScale = 5.0;
-                    mesh.lookAt(camera.position); // 始终朝向相机
-                } else {
-                    targetPos = currentState === STATE.TREE ? mesh.userData.treePos : mesh.userData.scatterPos;
-                    if(currentState !== STATE.TREE) mesh.position.y += Math.sin(time+idx)*0.02;
-                    
-                    // 非聚焦状态下，根据基础旋转+公转
-                    if(currentState === STATE.SCATTER) targetScale = 3.0;
+                    const isDoubleTap = (currentTime - lastTapTime < TAP_THRESHOLD) &&
+                        (Math.abs(currentX - lastTapX) < TAP_DISTANCE_THRESHOLD &&
+                            Math.abs(currentY - lastTapY) < TAP_DISTANCE_THRESHOLD);
 
-                    if (currentState === STATE.TREE) {
-                         mesh.rotation.copy(mesh.userData.baseRot);
-                         mesh.rotation.y += 0.01;
+                    if (isDoubleTap) {
+                        handleDoubleClick(e);
                     } else {
-                        mesh.lookAt(camera.position);
+                        // 单次点击：切换到散开状态（如果当前是树形态）
+                        if (currentState === STATE.TREE) {
+                            currentState = STATE.SCATTER;
+                            // updateStatus("滑动散开：星云形态", "#00aaff");
+                        }
+                    }
+
+                    lastTapTime = currentTime;
+                    lastTapX = currentX;
+                    lastTapY = currentY;
+                }
+
+                isTouching = false;
+                isLongPress = false;
+            }
+
+            function handleDoubleClick(e) {
+                if (currentState === STATE.SCATTER || currentState === STATE.ZOOM) {
+                    currentState = STATE.TREE;
+                    zoomTargetIndex = -1;
+                    rotationVelocity.x = 0;
+                    rotationVelocity.y = 0;
+                    // updateStatus("双击聚合：圣诞树形态", "#0f0");
+                }
+            }
+
+            // 触摸事件处理（与鼠标事件类似）
+            function handleTouchStart(e) {
+                e.preventDefault();
+                const touch = e.touches[0];
+                const rect = renderer.domElement.getBoundingClientRect();
+                touchStartX = touch.clientX - rect.left;
+                touchStartY = touch.clientY - rect.top;
+                touchStartTime = Date.now();
+                isTouching = true;
+
+                longPressTimer = setTimeout(() => {
+                    if (isTouching) {
+                        isLongPress = true;
+                        startPhotoSelection(touchStartX, touchStartY);
+                        // updateStatus("长按激活：选择照片", "#ffd700");
+                    }
+                }, LONG_PRESS_THRESHOLD);
+            }
+
+            function handleTouchMove(e) {
+                e.preventDefault();
+                if (!isTouching || !e.touches[0]) return;
+
+                const touch = e.touches[0];
+                const rect = renderer.domElement.getBoundingClientRect();
+                const currentX = touch.clientX - rect.left;
+                const currentY = touch.clientY - rect.top;
+
+                const deltaX = currentX - touchStartX;
+                const deltaY = currentY - touchStartY;
+
+                if (isLongPress) {
+                    handleLongPressMove(deltaX, deltaY);
+                } else {
+                    handleNormalSwipe(deltaX, deltaY);
+                }
+
+                touchStartX = currentX;
+                touchStartY = currentY;
+            }
+
+            function handleTouchEnd(e) {
+                e.preventDefault();
+                if (longPressTimer) {
+                    clearTimeout(longPressTimer);
+                    longPressTimer = null;
+                }
+
+                if (!isLongPress && isTouching) {
+                    const currentTime = Date.now();
+                    const rect = renderer.domElement.getBoundingClientRect();
+                    const currentX = e.changedTouches[0].clientX - rect.left;
+                    const currentY = e.changedTouches[0].clientY - rect.top;
+
+                    const isDoubleTap = (currentTime - lastTapTime < TAP_THRESHOLD) &&
+                        (Math.abs(currentX - lastTapX) < TAP_DISTANCE_THRESHOLD &&
+                            Math.abs(currentY - lastTapY) < TAP_DISTANCE_THRESHOLD);
+
+                    if (isDoubleTap) {
+                        handleDoubleClick(e);
+                    } else {
+                        if (currentState === STATE.TREE) {
+                            currentState = STATE.SCATTER;
+                            // updateStatus("滑动散开：星云形态", "#00aaff");
+                        }
+                    }
+
+                    lastTapTime = currentTime;
+                    lastTapX = currentX;
+                    lastTapY = currentY;
+                }
+
+                isTouching = false;
+                isLongPress = false;
+            }
+            function handleNormalSwipe(deltaX, deltaY) {
+                if (currentState === STATE.TREE) {
+                    // 在树形态下左右滑动 → 切换到散开状态
+                    if (Math.abs(deltaX) > 20) {
+                        currentState = STATE.SCATTER;
+                        // updateStatus("滑动散开：星云形态", "#00aaff");
+                        // 根据滑动方向设置初始旋转速度
+                        rotationVelocity.y = deltaX > 0 ? 0.02 : -0.02;
+                    }
+                } else if (currentState === STATE.SCATTER) {
+                    // 在散开状态下滑动 → 旋转视图
+                    rotationVelocity.y += deltaX * 0.005;
+                    rotationVelocity.x += deltaY * 0.002;
+                }
+            }
+
+            function startPhotoSelection(x, y) {
+                // 在ZOOM状态下长按：返回SCATTER状态
+                if (currentState === STATE.ZOOM) {
+                    // 记录长按开始时间
+                    touchStartTime = Date.now();
+
+                    // 延迟执行返回操作（让用户有时间松开）
+                    setTimeout(() => {
+                        if (isLongPress && currentState === STATE.ZOOM) {
+                            // 返回到散开状态
+                            currentState = STATE.SCATTER;
+                            zoomTargetIndex = -1;
+                            isViewingPhoto = false;
+                            // updateStatus("已返回星云状态", "#00aaff");
+                        }
+                    }, LONG_PRESS_THRESHOLD);
+                    return;
+                }
+
+                // 原来的选择照片逻辑
+                if (currentState !== STATE.SCATTER || photoMeshes.length === 0) return;
+
+                // 将屏幕坐标转换为三维坐标，找到最近的照片
+                const mouse = new THREE.Vector2(
+                    (x / renderer.domElement.clientWidth) * 2 - 1,
+                    -(y / renderer.domElement.clientHeight) * 2 + 1
+                );
+
+                const raycaster = new THREE.Raycaster();
+                raycaster.setFromCamera(mouse, camera);
+
+                // 查找与射线相交的照片
+                const intersects = raycaster.intersectObjects(photoMeshes);
+
+                if (intersects.length > 0) {
+                    const selectedMesh = intersects[0].object;
+                    zoomTargetIndex = photoMeshes.indexOf(selectedMesh);
+                    switchToZoom();
+                    // updateStatus("已放大照片，长按返回星云", "#ffd700");
+                }
+            }
+            function handleLongPressMove(deltaX, deltaY) {
+                // 在ZOOM状态下长按移动：不移动照片，准备返回SCATTER
+                if (currentState === STATE.ZOOM) {
+                    return; // 阻止照片移动
+                }
+
+                // 原来的移动照片逻辑
+                if (currentState === STATE.SCATTER && zoomTargetIndex !== -1) {
+                    const mesh = photoMeshes[zoomTargetIndex];
+
+                    // 计算移动方向（转换为三维空间）
+                    const moveSpeed = 0.05;
+                    const worldDelta = new THREE.Vector3(
+                        deltaX * moveSpeed,
+                        -deltaY * moveSpeed, // Y轴方向相反
+                        0
+                    );
+
+                    // 将屏幕移动转换为世界空间移动
+                    worldDelta.applyQuaternion(camera.quaternion);
+                    mesh.position.add(worldDelta);
+                }
+            }
+
+            function createSnowflakeSystem() {
+                // 创建雪花粒子纹理 - 优化纹理更明亮
+                function createParticleTexture() {
+                    const canvas = document.createElement('canvas');
+                    const size = 96; // 增大纹理尺寸
+                    canvas.width = size;
+                    canvas.height = size;
+                    const ctx = canvas.getContext('2d');
+
+                    // 绘制更漂亮的粒子，中心更亮，边缘有光晕
+                    const gradient = ctx.createRadialGradient(
+                        size / 2, size / 2, 0,
+                        size / 2, size / 2, size / 2
+                    );
+                    gradient.addColorStop(0, 'rgba(255, 255, 255, 1)');
+                    gradient.addColorStop(0.3, 'rgba(255, 255, 255, 0.9)');
+                    gradient.addColorStop(0.7, 'rgba(200, 230, 255, 0.5)');
+                    gradient.addColorStop(1, 'rgba(150, 200, 255, 0)');
+
+                    ctx.fillStyle = gradient;
+                    ctx.fillRect(0, 0, size, size);
+
+                    // 添加一点点星光效果
+                    ctx.beginPath();
+                    ctx.arc(size / 2, size / 2, size / 10, 0, Math.PI * 2);
+                    ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+                    ctx.fill();
+
+                    return new THREE.CanvasTexture(canvas);
+                }
+
+                const particleTexture = createParticleTexture();
+                const particleMaterial = new THREE.SpriteMaterial({
+                    map: particleTexture,
+                    color: 0xffffff,
+                    transparent: true,
+                    opacity: 0.95,
+                    depthWrite: false,
+                    blending: THREE.AdditiveBlending
+                });
+
+                // 清空现有粒子
+                snowflakeParticles = [];
+
+                // 1. 创建雪花中心区域 - 六边形核心更明显
+                const centerRadius = CONFIG.snowflakeArmLength * 0.25;
+                for (let i = 0; i < CONFIG.snowflakeCenterParticles; i++) {
+                    // 在六边形区域内生成粒子
+                    const angle = Math.random() * Math.PI * 2;
+                    const distance = Math.sqrt(Math.random()) * centerRadius;
+
+                    // 六边形形状
+                    const hexAngle = Math.floor(angle / (Math.PI / 3)) * (Math.PI / 3);
+                    const hexDist = distance * 0.8 + Math.random() * centerRadius * 0.2;
+
+                    const x = Math.cos(hexAngle) * hexDist;
+                    const y = Math.sin(hexAngle) * hexDist;
+                    const z = (Math.random() - 0.5) * 2;
+
+                    // 中心粒子更大
+                    const sizeMultiplier = 1.2 - (distance / centerRadius) * 0.4;
+                    const sprite = createParticleAtPosition(x, y, z, particleMaterial, sizeMultiplier);
+
+                    snowflakeParticles.push({
+                        initialPos: new THREE.Vector3(x, y, z),
+                        currentPos: new THREE.Vector3(x, y, z),
+                        targetPos: null,
+                        speed: 0.01 + Math.random() * 0.02,
+                        sprite: sprite,
+                        isCenter: true,
+                        sizeMultiplier: sizeMultiplier
+                    });
+                }
+
+                // 2. 创建六个主要分支 - 更宽更美观
+                for (let armIndex = 0; armIndex < CONFIG.snowflakeBranchCount; armIndex++) {
+                    const angle = (armIndex * Math.PI * 2) / CONFIG.snowflakeBranchCount;
+
+                    // 创建主臂（从中心向外） - 增加宽度
+                    for (let i = 0; i < CONFIG.snowflakeParticlesPerArm; i++) {
+                        // 计算在主臂上的位置
+                        const progress = i / CONFIG.snowflakeParticlesPerArm;
+                        const distance = centerRadius + progress * (CONFIG.snowflakeArmLength - centerRadius);
+
+                        // 主臂宽度 - 中间宽，两端窄
+                        const armWidth = CONFIG.snowflakeArmWidth *
+                            (0.3 + 0.7 * Math.sin(progress * Math.PI)) *  // 正弦曲线宽度
+                            (1 - progress * 0.3);  // 越往外越窄
+
+                        // 在宽度范围内随机分布粒子
+                        const offset = (Math.random() - 0.5) * armWidth;
+
+                        // 主臂粒子位置
+                        const x = Math.cos(angle) * distance + Math.cos(angle + Math.PI / 2) * offset;
+                        const y = Math.sin(angle) * distance + Math.sin(angle + Math.PI / 2) * offset;
+                        const z = (Math.random() - 0.5) * 1.5;
+
+                        // 粒子大小 - 中间大，两端小
+                        const sizeMultiplier = (0.7 + 0.3 * Math.sin(progress * Math.PI)) *
+                            (1 - progress * 0.4);
+
+                        const sprite = createParticleAtPosition(x, y, z, particleMaterial, sizeMultiplier * 0.9);
+
+                        snowflakeParticles.push({
+                            initialPos: new THREE.Vector3(x, y, z),
+                            currentPos: new THREE.Vector3(x, y, z),
+                            targetPos: null,
+                            speed: 0.015 + Math.random() * 0.03,
+                            sprite: sprite,
+                            armIndex: armIndex,
+                            progress: progress,
+                            isMainArm: true,
+                            sizeMultiplier: sizeMultiplier * 0.9
+                        });
+                    }
+
+                    // 3. 创建侧分支 - 更宽，粒子更分散
+                    for (let side = 0; side < 2; side++) {
+                        const sideAngle = angle + (side === 0 ? Math.PI / 4 : -Math.PI / 4);
+                        const sideArmLength = CONFIG.snowflakeArmLength * 0.6; // 侧分支稍短
+
+                        // 侧分支从主臂的30%到80%位置
+                        const startProgress = 0.3;
+                        const endProgress = 0.8;
+
+                        for (let j = 0; j < CONFIG.snowflakeSideBranchParticles; j++) {
+                            const sideProgress = startProgress + (j / CONFIG.snowflakeSideBranchParticles) * (endProgress - startProgress);
+                            const sideDistance = sideProgress * sideArmLength;
+
+                            // 侧分支起始点（在主臂上）
+                            const startX = Math.cos(angle) * (centerRadius + startProgress * (CONFIG.snowflakeArmLength - centerRadius));
+                            const startY = Math.sin(angle) * (centerRadius + startProgress * (CONFIG.snowflakeArmLength - centerRadius));
+
+                            // 侧分支宽度 - 从根部到尖端变窄
+                            const sideWidth = CONFIG.snowflakeArmWidth * 0.2 * (1 - sideProgress * 0.5);
+                            const sideOffset = (Math.random() - 0.5) * sideWidth;
+
+                            // 垂直于侧分支方向的偏移
+                            const perpAngle = sideAngle + Math.PI / 2;
+                            const x = startX + Math.cos(sideAngle) * sideDistance + Math.cos(perpAngle) * sideOffset;
+                            const y = startY + Math.sin(sideAngle) * sideDistance + Math.sin(perpAngle) * sideOffset;
+                            const z = (Math.random() - 0.5) * 1.2;
+
+                            // 侧分支粒子大小
+                            const sizeMultiplier = 0.6 * (1 - sideProgress * 0.3);
+
+                            const sprite = createParticleAtPosition(x, y, z, particleMaterial, sizeMultiplier);
+
+                            snowflakeParticles.push({
+                                initialPos: new THREE.Vector3(x, y, z),
+                                currentPos: new THREE.Vector3(x, y, z),
+                                targetPos: null,
+                                speed: 0.02 + Math.random() * 0.04,
+                                sprite: sprite,
+                                armIndex: armIndex,
+                                isSideArm: true,
+                                sideIndex: side,
+                                sizeMultiplier: sizeMultiplier
+                            });
+                        }
+                    }
+
+                    // 4. 创建次级侧分支 - 更少粒子，更分散
+                    for (let side = 0; side < 2; side++) {
+                        const sideAngle = angle + (side === 0 ? Math.PI / 6 : -Math.PI / 6);
+
+                        // 只在部分侧分支上创建次级分支
+                        if (Math.random() > 0.7) continue;
+
+                        const subAngle = sideAngle + (side === 0 ? Math.PI / 8 : -Math.PI / 8);
+                        const subArmLength = CONFIG.snowflakeArmLength * 0.3;
+
+                        for (let k = 0; k < CONFIG.snowflakeSubBranchParticles; k++) {
+                            const subProgress = 0.5 + (k / CONFIG.snowflakeSubBranchParticles) * 0.3;
+                            const subDistance = subProgress * subArmLength;
+
+                            // 起始点在侧分支的中间位置
+                            const startProgress = 0.5;
+                            const startX = Math.cos(angle) * (centerRadius + startProgress * (CONFIG.snowflakeArmLength - centerRadius));
+                            const startY = Math.sin(angle) * (centerRadius + startProgress * (CONFIG.snowflakeArmLength - centerRadius));
+
+                            // 先到侧分支上的点
+                            const sidePointX = startX + Math.cos(sideAngle) * (subArmLength * 0.5);
+                            const sidePointY = startY + Math.sin(sideAngle) * (subArmLength * 0.5);
+
+                            const x = sidePointX + Math.cos(subAngle) * subDistance;
+                            const y = sidePointY + Math.sin(subAngle) * subDistance;
+                            const z = (Math.random() - 0.5) * 1;
+
+                            const sprite = createParticleAtPosition(x, y, z, particleMaterial, 0.4);
+
+                            snowflakeParticles.push({
+                                initialPos: new THREE.Vector3(x, y, z),
+                                currentPos: new THREE.Vector3(x, y, z),
+                                targetPos: null,
+                                speed: 0.025 + Math.random() * 0.05,
+                                sprite: sprite,
+                                armIndex: armIndex,
+                                isSubArm: true,
+                                sizeMultiplier: 0.4
+                            });
+                        }
                     }
                 }
-                
-                mesh.position.lerp(targetPos, 0.1);
-                
-                const currentScale = mesh.scale.x;
-                const newScale = THREE.MathUtils.lerp(currentScale, targetScale, 0.1);
-                mesh.scale.setScalar(newScale);
-            });
-        }
 
-        // --- 交互系统 (MediaPipe) ---
-        async function setupMediaPipe() {
-            try {
-                const vision = await FilesetResolver.forVisionTasks("https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.0/wasm");
-                const handLandmarker = await HandLandmarker.createFromOptions(vision, {
-                    baseOptions: {
-                        modelAssetPath: `https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task`,
-                        delegate: "GPU"
-                    },
-                    runningMode: "VIDEO", numHands: 1
-                });
-                
-                const video = document.getElementById("input-video");
-                const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-                video.srcObject = stream;
-                
-                video.addEventListener("loadeddata", () => {
-                    document.getElementById('loading').style.display = 'none';
-                    updateStatus("系统就绪，请伸手", "#0f0");
-                    predictWebcam(handLandmarker, video);
-                });
-            } catch (error) {
-                console.error(error);
-                document.getElementById('loading').innerText = "Camera Access Denied";
-                updateStatus("无法访问摄像头", "#f00");
-            }
-        }
+                // 5. 添加装饰性小粒子（在雪花空隙处）- 更稀疏
+                const decorationCount = 60;
+                for (let i = 0; i < decorationCount; i++) {
+                    // 在雪花整体范围内随机位置
+                    const angle = Math.random() * Math.PI * 2;
+                    const distance = centerRadius + Math.random() * CONFIG.snowflakeArmLength * 0.7;
 
-        let lastVideoTime = -1;
-        let lastPredictionTime = 0;
-        const PREDICTION_INTERVAL = 50; // 限制手势检测频率 (ms) -> 20 FPS
+                    const x = Math.cos(angle) * distance;
+                    const y = Math.sin(angle) * distance;
+                    const z = (Math.random() - 0.5) * 3;
 
-        async function predictWebcam(handLandmarker, video) {
-            const now = performance.now();
-            
-            // 节流：如果是同一帧或者时间间隔太短，跳过检测
-            if (video.currentTime !== lastVideoTime && (now - lastPredictionTime > PREDICTION_INTERVAL)) {
-                lastVideoTime = video.currentTime;
-                lastPredictionTime = now;
-                
-                const result = handLandmarker.detectForVideo(video, now);
-                drawAndProcess(video, result);
-            }
-            requestAnimationFrame(() => predictWebcam(handLandmarker, video));
-        }
-        
-        function drawAndProcess(video, result) {
-            const canvas = document.getElementById('skeleton-canvas');
-            const ctx = canvas.getContext('2d');
-            
-            // 确保画布尺寸匹配
-            if(canvas.width !== video.videoWidth) {
-                canvas.width = video.videoWidth;
-                canvas.height = video.videoHeight;
-            }
-            
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    // 检查是否太靠近主要分支（简化距离检查）
+                    let tooClose = false;
+                    for (let j = 0; j < Math.min(10, snowflakeParticles.length); j++) {
+                        const p = snowflakeParticles[j];
+                        const dx = x - p.initialPos.x;
+                        const dy = y - p.initialPos.y;
+                        if (Math.sqrt(dx * dx + dy * dy) < 2) {
+                            tooClose = true;
+                            break;
+                        }
+                    }
 
-            if (result.landmarks && result.landmarks.length > 0) {
-                const landmarks = result.landmarks[0];
-                isHandPresent = true;
-                drawSkeleton(ctx, landmarks, canvas.width, canvas.height);
-                handleGesture(landmarks);
-            } else {
-                isHandPresent = false;
-                // 如果没有手，自动回复一点点转速
-                if(currentState === STATE.SCATTER) {
-                   // rotationVelocity.y = THREE.MathUtils.lerp(rotationVelocity.y, 0.002, 0.05);
+                    if (tooClose) continue;
+
+                    const sprite = createParticleAtPosition(x, y, z, particleMaterial, 0.15 + Math.random() * 0.15);
+
+                    snowflakeParticles.push({
+                        initialPos: new THREE.Vector3(x, y, z),
+                        currentPos: new THREE.Vector3(x, y, z),
+                        targetPos: null,
+                        speed: 0.01 + Math.random() * 0.02,
+                        sprite: sprite,
+                        isDecoration: true,
+                        sizeMultiplier: 0.15 + Math.random() * 0.15
+                    });
                 }
+
+                // 6. 添加背景雾化粒子 - 更稀疏，更大范围
+                for (let i = 0; i < CONFIG.snowflakeFogParticles; i++) {
+                    const radius = CONFIG.snowflakeArmLength * 2 + Math.random() * 20;
+                    const angle = Math.random() * Math.PI * 2;
+                    const depth = (Math.random() - 0.5) * 25;
+
+                    const x = Math.cos(angle) * radius;
+                    const y = Math.sin(angle) * radius;
+                    const z = depth;
+
+                    const sprite = createParticleAtPosition(x, y, z, particleMaterial, 0.3 + Math.random() * 0.2);
+                    sprite.material.opacity = 0.2 + Math.random() * 0.3;
+
+                    snowflakeParticles.push({
+                        initialPos: new THREE.Vector3(x, y, z),
+                        currentPos: new THREE.Vector3(x, y, z),
+                        targetPos: null,
+                        speed: 0.005 + Math.random() * 0.01,
+                        sprite: sprite,
+                        isFog: true,
+                        sizeMultiplier: 0.3 + Math.random() * 0.2
+                    });
+                }
+
+                console.log(`雪花粒子总数: ${snowflakeParticles.length}`);
             }
-        }
 
-        function drawSkeleton(ctx, landmarks, w, h) {
-            ctx.lineWidth = 3; ctx.strokeStyle = '#00ff88'; ctx.fillStyle = '#ff0044';
-            const connections = [[0,1],[1,2],[2,3],[3,4],[0,5],[5,6],[6,7],[7,8],[5,9],[9,10],[10,11],[11,12],[9,13],[13,14],[14,15],[15,16],[13,17],[17,18],[18,19],[19,20],[0,17]];
-            
-            ctx.beginPath();
-            for (let c of connections) {
-                const s = landmarks[c[0]];
-                const e = landmarks[c[1]];
-                ctx.moveTo(s.x * w, s.y * h); ctx.lineTo(e.x * w, e.y * h);
-            }
-            ctx.stroke();
-            
-            // 关键点
-            for(let p of landmarks) {
-                ctx.beginPath(); ctx.arc(p.x * w, p.y * h, 3, 0, 2 * Math.PI); ctx.fill();
-            }
-        }
+            // 创建下雪系统的函数
+            function createSnowSystem() {
+                // 先清理旧的雪花系统
+                if (snowParticles) {
+                    scene.remove(snowParticles);
+                    if (snowGeometry) snowGeometry.dispose();
+                    if (snowMaterial) snowMaterial.dispose();
+                    snowParticles = null;
+                }
+                console.log('开始创建下雪系统...');
+                // 创建雪花纹理（更精致的雪花形状）
+                function createSnowTexture() {
+                    const canvas = document.createElement('canvas');
+                    const size = 128;
+                    canvas.width = size;
+                    canvas.height = size;
+                    const ctx = canvas.getContext('2d');
 
-        function handleGesture(landmarks) {
-            // 计算手掌中心
-            const palmX = 1 - (landmarks[0].x + landmarks[9].x) / 2; // 镜像翻转 X
-            const palmY = (landmarks[0].y + landmarks[9].y) / 2;
-            
-            // 平滑位置
-            handPos.x = handPos.x * 0.7 + palmX * 0.3;
-            handPos.y = handPos.y * 0.7 + palmY * 0.3;
+                    // 透明背景
+                    ctx.clearRect(0, 0, size, size);
 
-            // 简单的手势判定算法
-            let folded = 0;
-            const tips = [8,12,16,20];
-            const bases = [5,9,13,17];
-            
-            // 指尖到指根距离判定握拳
-            tips.forEach((tipIdx, i) => { 
-                const d = Math.sqrt(
-                    Math.pow(landmarks[tipIdx].x - landmarks[0].x, 2) + 
-                    Math.pow(landmarks[tipIdx].y - landmarks[0].y, 2)
-                );
-                if(d < 0.25) folded++; 
-            });
-            
-            // 捏合检测 (食指拇指距离)
-            const dPinch = Math.sqrt(
-                Math.pow(landmarks[4].x - landmarks[8].x, 2) + 
-                Math.pow(landmarks[4].y - landmarks[8].y, 2)
-            );
-            
-            const isPinch = dPinch < 0.08;
-            const isFist = folded >= 3; 
-            const isOpen = !isFist && !isPinch;
+                    // 绘制六角雪花
+                    ctx.translate(size / 2, size / 2);
+                    ctx.strokeStyle = 'rgba(255, 255, 255, 0.9)';
+                    ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+                    ctx.lineWidth = 2;
 
-            // 状态机
-            if (isPinch && currentState === STATE.SCATTER) {
-                if (photoMeshes.length > 0) {
-                    switchToZoom();
-                    updateStatus("抓取照片: 聚焦回忆", "#ffd700");
+                    // 中心圆点
+                    ctx.beginPath();
+                    ctx.arc(0, 0, size * 0.05, 0, Math.PI * 2);
+                    ctx.fill();
+
+                    // 六个分支
+                    for (let i = 0; i < 6; i++) {
+                        ctx.save();
+                        ctx.rotate(i * Math.PI / 3);
+
+                        // 主分支
+                        ctx.beginPath();
+                        ctx.moveTo(0, 0);
+                        ctx.lineTo(0, size * 0.4);
+                        ctx.stroke();
+
+                        // 侧分支
+                        for (let j = 1; j <= 2; j++) {
+                            const sidePos = size * 0.2 * j;
+                            const sideLength = size * 0.15 * (3 - j);
+
+                            // 左侧分支
+                            ctx.save();
+                            ctx.translate(0, sidePos);
+                            ctx.rotate(-Math.PI / 6);
+                            ctx.beginPath();
+                            ctx.moveTo(0, 0);
+                            ctx.lineTo(0, sideLength);
+                            ctx.stroke();
+                            ctx.restore();
+
+                            // 右侧分支
+                            ctx.save();
+                            ctx.translate(0, sidePos);
+                            ctx.rotate(Math.PI / 6);
+                            ctx.beginPath();
+                            ctx.moveTo(0, 0);
+                            ctx.lineTo(0, sideLength);
+                            ctx.stroke();
+                            ctx.restore();
+                        }
+
+                        ctx.restore();
+                    }
+
+                    ctx.translate(-size / 2, -size / 2);
+
+                    // 创建纹理并设置属性
+                    const texture = new THREE.CanvasTexture(canvas);
+                    texture.needsUpdate = true; // 重要：标记纹理需要更新
+                    texture.colorSpace = THREE.SRGBColorSpace; // 设置颜色空间
+                    return texture;
+                }
+
+                // 创建粒子系统
+                snowGeometry = new THREE.BufferGeometry();
+                snowMaterial = new THREE.PointsMaterial({
+                    map: createSnowTexture(),
+                    size: CONFIG.snowSize,
+                    transparent: true,
+                    opacity: 0.8,
+                    depthWrite: false,
+                    blending: THREE.AdditiveBlending,
+                    vertexColors: false,
+                    color: CONFIG.snowColor
+                });
+
+                // 初始化粒子位置
+                snowPositions = new Float32Array(CONFIG.snowCount * 3);
+
+
+                const snowArea = {
+                    width: 150,   // X方向范围
+                    height: 120,  // Y方向范围（高度）
+                    depth: 150    // Z方向范围
+                };
+
+
+                for (let i = 0; i < CONFIG.snowCount; i++) {
+                    const x = (Math.random() - 0.5) * snowArea.width;
+                    const y = (Math.random() - 0.5) * snowArea.height + 20;
+
+                    // 修正这里！雪花应该在相机和原点之间
+                    // 相机Z=110，原点Z=0，雪花Z应该在0-80之间
+                    const z = Math.random() * 60 + 10; // Z: 10到70之间（相机前方）
+
+                    snowPositions[i * 3] = x;
+                    snowPositions[i * 3 + 1] = y;
+                    snowPositions[i * 3 + 2] = z; // 正数！在相机前方
+
+                    // 调试：记录一些雪花的位置
+                    if (i < 3) {
+                        console.log(`雪花${i} 修正后位置: (${x.toFixed(1)}, ${y.toFixed(1)}, ${z.toFixed(1)})`);
+                    };
+
+
+                    snowGeometry.setAttribute('position', new THREE.BufferAttribute(snowPositions, 3));
+                }
+
+                // 添加旋转属性（可选，让雪花旋转）
+                const rotations = new Float32Array(CONFIG.snowCount);
+                for (let i = 0; i < CONFIG.snowCount; i++) {
+                    snowVelocities[i] = {
+                        fallSpeed: CONFIG.snowFallSpeed * (0.5 + Math.random() * 0.5),
+                        driftSpeed: CONFIG.snowDriftSpeed * (0.5 + Math.random()),
+                        driftDirection: new THREE.Vector3(
+                            (Math.random() - 0.5) * 0.02,
+                            0,
+                            (Math.random() - 0.5) * 0.02
+                        ),
+                        rotation: Math.random() * Math.PI * 2,
+                        rotationSpeed: (Math.random() - 0.5) * 0.01,
+                        sizeVariation: 0.7 + Math.random() * 0.6
+                    };
+                    rotations[i] = Math.random() * Math.PI * 2;
+                }
+                snowGeometry.setAttribute('rotation', new THREE.BufferAttribute(rotations, 1));
+
+                snowParticles = new THREE.Points(snowGeometry, snowMaterial);
+                // 添加调试信息
+                console.log('雪花粒子系统创建完成:', {
+                    geometry: snowGeometry,
+                    material: snowMaterial,
+                    particles: snowParticles,
+                    positionCount: snowGeometry.attributes.position.count
+                });
+                snowParticles.frustumCulled = false; // 防止摄像机裁剪
+
+                // 添加到场景中
+                scene.add(snowParticles);
+                // 确保添加到场景
+                if (scene && snowParticles) {
+                    scene.add(snowParticles);
+                    console.log('下雪系统已添加到场景');
                 } else {
-                    updateStatus("请先点击右下角上传照片", "#aaa");
+                    console.error('无法添加下雪系统到场景');
                 }
-            } else if (isFist) {
-                currentState = STATE.TREE;
-                zoomTargetIndex = -1;
-                rotationVelocity.x = 0; rotationVelocity.y = 0;
-                updateStatus("握拳: 聚合形态", "#0f0");
-            } else if (isOpen) {
-                if (currentState === STATE.ZOOM && !isPinch) {
-                    currentState = STATE.SCATTER;
-                    zoomTargetIndex = -1;
-                } else if (currentState === STATE.TREE) {
-                    currentState = STATE.SCATTER;
-                    // 重置惯性位置避免跳变
-                    lastHandPos.x = handPos.x; lastHandPos.y = handPos.y;
-                }
-                updateStatus("张手: 星云散开 (挥手旋转)", "#00aaff");
+                console.log('下雪系统已创建，雪花数量:', CONFIG.snowCount);
             }
-        }
-        
-        function switchToZoom() {
-            currentState = STATE.ZOOM;
-            targetState = STATE.ZOOM;
-            
-            // 智能选择逻辑：选离镜头最近的照片
-            if (zoomTargetIndex === -1 && photoMeshes.length > 0) {
-                let minDist = Infinity;
-                let bestIdx = 0;
-                const camPos = camera.position;
-                const worldPos = new THREE.Vector3();
+
+            // 辅助函数：在指定位置创建粒子精灵
+            function createParticleAtPosition(x, y, z, material, sizeMultiplier = 1.0) {
+                const sprite = new THREE.Sprite(material.clone());
+                sprite.position.set(x, y, z);
+                const scale = CONFIG.snowflakeParticleSize * sizeMultiplier;
+                sprite.scale.set(scale, scale, 1);
+                mainGroup.add(sprite);
+                return sprite;
+            }
+
+            function updateSnowSystem() {
+                console.log('更新雪花系统');
+                // 调试日志
+                if (!snowParticles) {
+                    console.log('下雪系统未创建或已销毁');
+                    return;
+                }
+                // 只在圣诞树或散开状态下更新
+                if (!snowParticles || !snowGeometry || !snowPositions) {
+                    return; // 系统未创建
+                }
+
+                // 检查系统是否有效
+                if (!snowGeometry.attributes.position) {
+                    console.warn('Snow geometry position attribute missing');
+                    return;
+                }
+
+                const positions = snowGeometry.attributes.position.array;
+
+                for (let i = 0; i < CONFIG.snowCount; i++) {
+                    const velocity = snowVelocities[i];
+                    const idx = i * 3;
+
+                    // 下落
+                    positions[idx + 1] -= velocity.fallSpeed * 0.05; // 减小下落速度，更自然
+
+                    // 横向飘动
+                    positions[idx] += Math.sin(time * 0.5 + i * 0.01) * velocity.driftSpeed * 0.05;
+                    positions[idx + 2] += Math.cos(time * 0.3 + i * 0.02) * velocity.driftSpeed * 0.05;
+
+                    // 随机飘动
+                    positions[idx] += velocity.driftDirection.x * 0.1;
+                    positions[idx + 2] += velocity.driftDirection.z * 0.1;
+
+                    // 如果雪花落到地面以下，重置到顶部
+                    if (positions[idx + 1] < -30) { // 调整地面高度
+                        positions[idx + 1] = Math.random() * CONFIG.snowAreaHeight + 30;
+                        positions[idx] = (Math.random() - 0.5) * CONFIG.snowAreaWidth;
+                        positions[idx + 2] = (Math.random() - 0.5) * CONFIG.snowAreaDepth;
+
+                        // 重置速度（保持多样性）
+                        velocity.fallSpeed = CONFIG.snowFallSpeed * (0.3 + Math.random() * 0.7);
+                    }
+                }
+
+                snowGeometry.attributes.position.needsUpdate = true;
+            }
+            // 更新雪花系统
+            function updateSnowflakeSystem() {
+                if (!snowflakeParticles || currentState !== STATE.INITIAL_SNOWFLAKE) return;
+
+                // 整个雪花缓慢旋转
+                mainGroup.rotation.z += 0.0003; // 旋转速度
+
+                // 雪花整体轻微脉动
+                const pulseAmount = Math.sin(time * 0.3) * 0.2;
+
+                for (let i = 0; i < snowflakeParticles.length; i++) {
+                    const particle = snowflakeParticles[i];
+
+                    if (particle.targetPos) {
+                        // 向目标位置移动
+                        particle.currentPos.lerp(particle.targetPos, particle.speed);
+
+                        // 粒子向外飞散时逐渐消失
+                        if (particle.sprite.material.opacity > 0) {
+                            particle.sprite.material.opacity -= 0.002;
+                        }
+
+                        // 粒子变小
+                        const currentScale = particle.sprite.scale.x;
+                        if (currentScale > 0.05) {
+                            particle.sprite.scale.setScalar(currentScale * 0.995);
+                        }
+                    } else {
+                        // 根据粒子类型进行不同的动画
+                        let floatX = 0, floatY = 0, floatZ = 0;
+
+                        if (particle.isFog) {
+                            // 雾化粒子：随机缓慢移动
+                            const timeOffset = time * 0.2 + i * 0.01;
+                            floatX = Math.sin(timeOffset) * 0.15;
+                            floatY = Math.cos(timeOffset * 0.6) * 0.15;
+                            floatZ = Math.sin(timeOffset * 1.2) * 0.08;
+                        } else if (particle.isCenter) {
+                            // 中心粒子：轻微脉动
+                            const pulse = Math.sin(time * 2 + i * 0.05) * 0.08;
+                            floatX = Math.cos(i * 0.1) * pulse;
+                            floatY = Math.sin(i * 0.1) * pulse;
+                            floatZ = Math.sin(time * 1.5 + i) * 0.03;
+                        } else if (particle.isMainArm) {
+                            // 主臂粒子：沿臂方向轻微摆动
+                            const armAngle = (particle.armIndex * Math.PI * 2) / CONFIG.snowflakeBranchCount;
+                            const swing = Math.sin(time * 1.5 + particle.armIndex) * 0.1 * (1 - particle.progress);
+                            floatX = Math.cos(armAngle + Math.PI / 2) * swing;
+                            floatY = Math.sin(armAngle + Math.PI / 2) * swing;
+                            floatZ = Math.sin(time * 1.2 + i) * 0.02;
+                        } else if (particle.isSideArm) {
+                            // 侧分支粒子：垂直于分支方向摆动
+                            const armAngle = (particle.armIndex * Math.PI * 2) / CONFIG.snowflakeBranchCount;
+                            const sideAngle = armAngle + (particle.sideIndex === 0 ? Math.PI / 6 : -Math.PI / 6);
+                            const swing = Math.sin(time * 2 + i) * 0.15;
+                            floatX = Math.cos(sideAngle + Math.PI / 2) * swing;
+                            floatY = Math.sin(sideAngle + Math.PI / 2) * swing;
+                            floatZ = Math.sin(time * 1.8 + i) * 0.03;
+                        } else if (particle.isSubArm) {
+                            // 次级分支粒子：更活跃的摆动
+                            const swing = Math.sin(time * 2.5 + i) * 0.2;
+                            floatX = Math.cos(i * 0.05) * swing;
+                            floatY = Math.sin(i * 0.05) * swing;
+                            floatZ = Math.sin(time * 2 + i) * 0.04;
+                        } else {
+                            // 装饰粒子：随机小幅度移动
+                            const timeOffset = time + i * 0.03;
+                            floatX = Math.sin(timeOffset) * 0.1;
+                            floatY = Math.cos(timeOffset * 0.7) * 0.1;
+                            floatZ = Math.sin(timeOffset * 1.3) * 0.05;
+                        }
+
+                        // 应用浮动动画
+                        particle.currentPos.x = particle.initialPos.x + floatX;
+                        particle.currentPos.y = particle.initialPos.y + floatY + pulseAmount * 0.5;
+                        particle.currentPos.z = particle.initialPos.z + floatZ;
+
+                        // 粒子自身缓慢旋转
+                        particle.sprite.rotation.z += 0.0015;
+
+                        // 呼吸效果（大小变化）
+                        const breath = 1 + Math.sin(time * 1.2 + i * 0.005) * 0.08;
+                        const baseSize = particle.sizeMultiplier || 1;
+                        particle.sprite.scale.setScalar(
+                            CONFIG.snowflakeParticleSize * baseSize * breath *
+                            (particle.isFog ? 0.5 : particle.isDecoration ? 0.3 : 1)
+                        );
+
+                        // 根据深度调整透明度
+                        if (!particle.isFog) {
+                            const depthOpacity = 1 - Math.abs(particle.currentPos.z) / 10;
+                            particle.sprite.material.opacity = Math.max(0.6, depthOpacity) * 0.95;
+                        }
+                    }
+
+                    // 更新精灵位置
+                    particle.sprite.position.copy(particle.currentPos);
+                }
+            }
+
+            // 控制风效的函数
+            function setWindEffect(intensity = 0.5, direction = new THREE.Vector3(1, 0, 0)) {
+                if (!snowVelocities) return;
+
+                for (let i = 0; i < snowVelocities.length; i++) {
+                    // 根据强度调整飘动方向
+                    snowVelocities[i].driftDirection.x = direction.x * intensity * 0.02;
+                    snowVelocities[i].driftDirection.z = direction.z * intensity * 0.02;
+                }
+            }
+
+            // 处理点击事件
+            function handleClick(event) {
+                if (currentState !== STATE.INITIAL_SNOWFLAKE) return;
+
+                // 显示飞散提示
+                const instructions = document.getElementById('snowflake-instructions');
+                instructions.innerHTML = "";
+                instructions.style.color = "#88ccff";
+                instructions.style.textShadow = "0 0 20px rgba(136, 204, 255, 0.8)";
+
+                // 计算点击方向（从雪花中心向外）
+                const rect = renderer.domElement.getBoundingClientRect();
+                const clickX = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+                const clickY = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+
+                // 转换为3D方向
+                const mouseVector = new THREE.Vector3(clickX, clickY, 0.5);
+                mouseVector.unproject(camera);
+                const clickDir = mouseVector.sub(camera.position).normalize();
+
+                // 为每个粒子设置飞散目标
+                for (let i = 0; i < snowflakeParticles.length; i++) {
+                    const particle = snowflakeParticles[i];
+                    const pos = particle.currentPos.clone();
+
+                    if (particle.isFog) {
+                        // 雾化粒子：向外围均匀飞散
+                        const angle = Math.atan2(pos.y, pos.x) + (Math.random() - 0.5) * 1.0;
+                        const distance = 80 + Math.random() * 100;
+                        const depth = (Math.random() - 0.5) * 120;
+
+                        particle.targetPos = new THREE.Vector3(
+                            Math.cos(angle) * distance,
+                            Math.sin(angle) * distance,
+                            depth
+                        );
+                    } else {
+                        // 结构粒子：基于点击方向和粒子位置决定飞散方向
+                        const fromCenter = pos.clone().normalize();
+
+                        // 组合点击方向、离心方向和随机方向
+                        const randomSpread = 0.4;
+                        const randomDir = new THREE.Vector3(
+                            (Math.random() - 0.5) * randomSpread,
+                            (Math.random() - 0.5) * randomSpread,
+                            (Math.random() - 0.5) * randomSpread
+                        );
+
+                        // 最终飞散方向
+                        const flyDir = new THREE.Vector3()
+                            .addScaledVector(clickDir, 0.4)          // 点击方向分量
+                            .addScaledVector(fromCenter, 0.4)        // 离心方向分量
+                            .add(randomDir)                          // 随机扩散分量
+                            .normalize();
+
+                        // 飞散距离基于粒子类型
+                        let flyDistance;
+                        if (particle.isCenter) flyDistance = 40 + Math.random() * 60;
+                        else if (particle.isMainArm) flyDistance = 60 + Math.random() * 80;
+                        else if (particle.isSideArm) flyDistance = 70 + Math.random() * 90;
+                        else if (particle.isSubArm) flyDistance = 80 + Math.random() * 100;
+                        else flyDistance = 50 + Math.random() * 70;
+
+                        particle.targetPos = flyDir.multiplyScalar(flyDistance);
+
+                        // 为结构粒子添加一些额外深度
+                        particle.targetPos.z += (Math.random() - 0.5) * 40;
+                    }
+
+                    // 设置飞散速度
+                    if (particle.isFog) particle.speed = 0.008 + Math.random() * 0.015;
+                    else if (particle.isCenter) particle.speed = 0.015 + Math.random() * 0.025;
+                    else particle.speed = 0.02 + Math.random() * 0.04;
+                }
+
+                // 设置状态转换
+                setTimeout(() => {
+                    currentState = STATE.TREE;
+                    targetState = STATE.TREE;
+
+                    //重置mainGroup的旋转
+                    mainGroup.rotation.set(0, 0, 0); // 重置所有旋转
+                    rotationVelocity.x = 0; // 重置旋转速度
+                    rotationVelocity.y = 0;
+
+                    // 清理雪花粒子
+                    snowflakeParticles.forEach(particle => {
+                        if (particle.sprite) {
+                            mainGroup.remove(particle.sprite);
+                        }
+                    });
+                    snowflakeParticles = [];
+
+                    // 创建圣诞树系统
+                    createMaterialsAndMeshes();
+                    createDust();
+                    createStarField();
+
+                    // 创建下雪系统
+                    createSnowSystem();
+
+                    // 显示UI
+                    document.getElementById('ui-layer').classList.remove('hidden');
+                    instructions.style.opacity = 0;
+                    // 加载预设图片
+                    console.log("加载预设图片...");
+                    setTimeout(loadPresetPhotos, 1000);
+
+                    // updateStatus("下雪", "#0f0");
+                }, 1800);
+            }
+
+
+
+            function updateDimensions() {
+                const targetAspect = 4 / 3;
+                const windowAspect = window.innerWidth / window.innerHeight;
+                let width, height;
+
+                if (windowAspect > targetAspect) {
+                    height = window.innerHeight;
+                    width = height * targetAspect;
+                } else {
+                    width = window.innerWidth;
+                    height = width / targetAspect;
+                }
+
+                const wrapper = document.getElementById('canvas-wrapper');
+                wrapper.style.width = width + 'px';
+                wrapper.style.height = height + 'px';
+                return { width, height };
+            }
+
+            function createMaterialsAndMeshes() {
+                // 定义分层颜色
+                const layerColors = [
+                    new THREE.Color(0xff9999), // 淡红色 - 最底层
+                    new THREE.Color(0xffcccc), // 淡粉色
+                    new THREE.Color(0x99ff99), // 淡绿色
+                    new THREE.Color(0x99ccff), // 淡蓝色
+                    new THREE.Color(0xffcc99), // 淡橙色
+                    new THREE.Color(0xcc99ff), // 淡紫色
+                    new THREE.Color(0xffff99)  // 淡黄色 - 最顶层
+                ];
+
+                // 创建圆形粒子纹理
+                function createCircleTexture(color) {
+                    const canvas = document.createElement('canvas');
+                    const size = 64;
+                    canvas.width = size;
+                    canvas.height = size;
+                    const ctx = canvas.getContext('2d');
+
+                    // 绘制模糊圆形
+                    const gradient = ctx.createRadialGradient(
+                        size / 2, size / 2, 0,
+                        size / 2, size / 2, size / 2
+                    );
+
+                    // 使用传入的颜色创建渐变
+                    gradient.addColorStop(0, `rgba(${Math.floor(color.r * 255)}, ${Math.floor(color.g * 255)}, ${Math.floor(color.b * 255)}, 1)`);
+                    gradient.addColorStop(0.7, `rgba(${Math.floor(color.r * 255)}, ${Math.floor(color.g * 255)}, ${Math.floor(color.b * 255)}, 0.7)`);
+                    gradient.addColorStop(1, `rgba(${Math.floor(color.r * 255)}, ${Math.floor(color.g * 255)}, ${Math.floor(color.b * 255)}, 0)`);
+
+                    ctx.fillStyle = gradient;
+                    ctx.fillRect(0, 0, size, size);
+
+                    return new THREE.CanvasTexture(canvas);
+                }
+
+                // 为每种粒子类型生成精灵
+                let totalParticles = CONFIG.goldCount + CONFIG.silverCount + CONFIG.gemCount + CONFIG.emeraldCount;
+
+                for (let type = 0; type < 4; type++) {
+                    const count = type === 0 ? CONFIG.goldCount :
+                        type === 1 ? CONFIG.silverCount :
+                            type === 2 ? CONFIG.gemCount : CONFIG.emeraldCount;
+
+                    for (let i = 0; i < count; i++) {
+                        // 生成分层的树形结构
+                        const h = Math.random() * CONFIG.treeHeight - CONFIG.treeHeight / 2;
+
+                        // 根据高度确定层级（0-6）
+                        const layerIndex = Math.min(Math.floor((h + CONFIG.treeHeight / 2) / (CONFIG.treeHeight / 7)), 6);
+
+                        const normH = (h + CONFIG.treeHeight / 2) / CONFIG.treeHeight;
+                        // 调整半径计算，使底部更宽，顶部更窄
+                        const rMax = CONFIG.maxRadius * (1 - normH * 1); // 从 *1.1 改为 *0.8，使顶部更尖
+                        const r = Math.sqrt(Math.random()) * rMax;
+                        const theta = Math.random() * Math.PI * 2;
+
+                        const x = r * Math.cos(theta);
+                        const y = h;
+                        const z = r * Math.sin(theta);
+
+                        const treePos = new THREE.Vector3(x, y, z);
+                        const scatterPos = randomSpherePoint(40 + Math.random() * 50);
+
+                        // 根据层级选择颜色
+                        const color = layerColors[layerIndex];
+
+                        // 创建圆形纹理
+                        const texture = createCircleTexture(color);
+
+                        // 创建精灵材质
+                        const material = new THREE.SpriteMaterial({
+                            map: texture,
+                            color: color,
+                            transparent: true,
+                            blending: THREE.AdditiveBlending, // 发光混合模式
+                            depthWrite: false
+                        });
+
+                        // 创建精灵
+                        const sprite = new THREE.Sprite(material);
+                        sprite.position.copy(treePos);
+                        sprite.scale.set(1.75, 1.75, 1); // 粒子大小
+                        sprite.renderOrder = 1; // 确保精灵在前面渲染
+
+                        mainGroup.add(sprite);
+                        particleSprites.push(sprite);
+
+                        logicData.particles.push({
+                            treePos: treePos,
+                            scatterPos: scatterPos,
+                            currentPos: treePos.clone(),
+                            scale: 0.3 + Math.random() * 0.5, // 将 0.5+0.9 改为 0.3+0.5，进一步减小粒子
+                            color: color,
+                            layer: layerIndex, // 保存层级信息
+                            sprite: sprite, // 保存对精灵的引用
+                            // 存储独立的旋转速度
+                            rotSpeed: new THREE.Euler(Math.random() * 0.02, Math.random() * 0.02, 0),
+                            rotation: new THREE.Euler(Math.random() * Math.PI, Math.random() * Math.PI, 0)
+                        });
+                    }
+                }
+
+
+
+                // 添加文字纹理
+                function createTextTexture(text) {
+                    // 创建canvas用于绘制文字
+                    const canvas = document.createElement('canvas');
+                    canvas.width = 256;
+                    canvas.height = 128;
+                    const ctx = canvas.getContext('2d');
+
+                    // 设置背景
+                    ctx.fillStyle = 'rgba(0, 0, 0, 0)';
+                    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+                    // 设置文字样式
+                    ctx.font = 'Bold 40px Arial';
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillStyle = '#FFD700'; // 金色
+                    ctx.fillText(text, canvas.width / 2, canvas.height / 2);
+
+                    // 添加发光效果
+                    ctx.shadowColor = '#FFFFFF';
+                    ctx.shadowBlur = 10;
+                    ctx.fillText(text, canvas.width / 2, canvas.height / 2);
+
+                    // 创建纹理
+                    const texture = new THREE.CanvasTexture(canvas);
+                    return texture;
+                }
+
+                function create3DStarGeometry(size = 1) {
+                    const geometry = new THREE.BufferGeometry();
+                    const vertices = [];
+                    const indices = [];
+
+                    // 定义五角星的顶点
+                    const outerRadius = size; // 外圈半径
+                    const innerRadius = size * 0.4; // 内圈半径
+                    const depth = size * 0.4; // 立体厚度
+
+                    // 创建上下两个面的顶点
+                    // 上面（+z）
+                    for (let i = 0; i < 10; i++) {
+                        const angle = i * Math.PI / 5 - Math.PI / 2; // 从顶部开始
+                        const radius = i % 2 === 0 ? outerRadius : innerRadius; // 外顶点和内顶点交替
+
+                        const x = Math.cos(angle) * radius;
+                        const y = Math.sin(angle) * radius;
+                        const z = depth / 2; // 上面
+
+                        vertices.push(x, y, z);
+                    }
+
+                    // 下面（-z）
+                    for (let i = 0; i < 10; i++) {
+                        const angle = i * Math.PI / 5 - Math.PI / 2; // 从顶部开始
+                        const radius = i % 2 === 0 ? outerRadius : innerRadius; // 外顶点和内顶点交替
+
+                        const x = Math.cos(angle) * radius;
+                        const y = Math.sin(angle) * radius;
+                        const z = -depth / 2; // 下面
+
+                        vertices.push(x, y, z);
+                    }
+
+                    // 添加中心点（上下各一个）
+                    vertices.push(0, 0, depth / 2); // 上中心点
+                    vertices.push(0, 0, -depth / 2); // 下中心点
+
+                    const topCenterIdx = 20; // 上中心点索引
+                    const bottomCenterIdx = 21; // 下中心点索引
+
+                    // 创建上表面的三角形
+                    for (let i = 0; i < 10; i++) {
+                        const next = (i + 1) % 10;
+                        if (i % 2 === 0) { // 外顶点
+                            indices.push(i, next, topCenterIdx);
+                        } else { // 内顶点
+                            indices.push(i, next, topCenterIdx);
+                        }
+                    }
+
+                    // 创建下表面的三角形（注意法线方向）
+                    for (let i = 0; i < 10; i++) {
+                        const next = (i + 1) % 10;
+                        if (i % 2 === 0) { // 外顶点
+                            indices.push(10 + i, bottomCenterIdx, 10 + next); // 注意顺序反转
+                        } else { // 内顶点
+                            indices.push(10 + i, bottomCenterIdx, 10 + next); // 注意顺序反转
+                        }
+                    }
+
+                    // 创建侧面的三角形（连接上下表面）
+                    for (let i = 0; i < 10; i++) {
+                        const next = (i + 1) % 10;
+                        // 两个三角形形成一个四边形侧面
+                        indices.push(i, 10 + i, next); // 第一个三角形
+                        indices.push(10 + i, 10 + next, next); // 第二个三角形
+                    }
+
+                    geometry.setIndex(indices);
+                    geometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
+                    geometry.computeVertexNormals(); // 计算法线以便正确光照
+
+                    return geometry;
+                }
+
+                const starGeo = create3DStarGeometry(2.5); // 创建3D五角星几何体
+                const starMat = new THREE.MeshPhysicalMaterial({
+                    color: 0xffffff,
+                    metalness: 0.7,        // 稍微降低金属度
+                    roughness: 0.1,        // 稍微增加粗糙度
+                    emissive: 0xffeecc,    // 降低发光颜色强度
+                    emissiveIntensity: 1.5, // 降低发光强度
+                    clearcoat: 0.8,
+                    clearcoatRoughness: 0.15
+                });
+                const star = new THREE.Mesh(starGeo, starMat);
+                star.userData = {
+                    treePos: new THREE.Vector3(0, CONFIG.treeHeight / 2 + 2.5, 0),
+                    scatterPos: new THREE.Vector3(0, 60, 0)
+                };
+                star.position.copy(star.userData.treePos);
+                star.rotation.z = Math.PI; // 旋转使五角星正确朝向
+                mainGroup.add(star);
+                logicData.star = star;
+
+                // 添加姓名标签
+                const nameText = "吴玉滢"; 
+                const nameTexture = createTextTexture(nameText);
+                const nameMaterial = new THREE.SpriteMaterial({
+                    map: nameTexture,
+                    transparent: true
+                });
+                const nameLabel = new THREE.Sprite(nameMaterial);
+                nameLabel.scale.set(16, 8, 2); // 调整大小
+                nameLabel.position.set(0, CONFIG.treeHeight / 2 + 6, 0);
+                nameLabel.renderOrder = 1000;
+                mainGroup.add(nameLabel);
+            }
+
+            function randomSpherePoint(r) {
+                const u = Math.random(), v = Math.random();
+                const theta = 2 * Math.PI * u;
+                const phi = Math.acos(2 * v - 1);
+                return new THREE.Vector3(
+                    r * Math.sin(phi) * Math.cos(theta),
+                    r * Math.sin(phi) * Math.sin(theta),
+                    r * Math.cos(phi)
+                );
+            }
+
+            function createDust() {
+                const geo = new THREE.BufferGeometry();
+                const pos = new Float32Array(CONFIG.dustCount * 3);
+
+                for (let i = 0; i < CONFIG.dustCount; i++) {
+                    const h = Math.random() * CONFIG.treeHeight - CONFIG.treeHeight / 2;
+                    const r = Math.random() * CONFIG.maxRadius + 5;
+                    const theta = Math.random() * Math.PI * 2;
+
+                    const x = r * Math.cos(theta);
+                    const z = r * Math.sin(theta);
+
+                    pos[i * 3] = x; pos[i * 3 + 1] = h; pos[i * 3 + 2] = z;
+
+                    logicData.dust.push({
+                        treePos: new THREE.Vector3(x, h, z),
+                        scatterPos: randomSpherePoint(70),
+                        currentPos: new THREE.Vector3(x, h, z),
+                        velocity: Math.random() * 0.05 + 0.02
+                    });
+                }
+                geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+
+                const mat = new THREE.PointsMaterial({
+                    color: 0xffd700, size: 0.5, transparent: true, opacity: 0.4,
+                    blending: THREE.AdditiveBlending, depthWrite: false
+                });
+                const dustSystem = new THREE.Points(geo, mat);
+                mainGroup.add(dustSystem);
+            }
+
+            function createStarField() {
+                const geo = new THREE.BufferGeometry();
+                const pos = [];
+                for (let i = 0; i < 800; i++) {
+                    pos.push((Math.random() - 0.5) * 800, (Math.random() - 0.5) * 800, (Math.random() - 0.5) * 800);
+                }
+                geo.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+                const stars = new THREE.Points(geo, new THREE.PointsMaterial({ color: 0x666666, size: 1.0, transparent: true, opacity: 0.6 }));
+                scene.add(stars);
+            }
+
+            // --- 核心动画循环 ---
+            function animate() {
+                requestAnimationFrame(animate);
+                time += 0.01;
+
+                // 根据当前状态更新相应内容
+                if (currentState === STATE.INITIAL_SNOWFLAKE) {
+                    updateSnowflakeSystem();
+                } else {
+                    // 更新下雪系统（排除缩放状态）
+                    if (currentState !== STATE.ZOOM) {
+                        updateSnowSystem();
+                    }
+                    // 1. 更新粒子系统
+                    updateParticleLogic();
+
+                    // 2. 更新粒子与照片
+                    updateDustLogic();
+                    updatePhotoLogic();
+
+                    // 3. 更新树顶星
+                    if (logicData.star) {
+                        let target = currentState === STATE.TREE ? logicData.star.userData.treePos : logicData.star.userData.scatterPos;
+                        logicData.star.position.lerp(target, 0.05);
+                        logicData.star.rotation.y += 0.01;
+                    }
+
+                    // 4. 全局旋转与惯性处理
+                    handlePhysicsRotation();
+                }
+
+                composer.render();
+            }
+
+            function handlePhysicsRotation() {
+                if (currentState === STATE.ZOOM) {
+                    // 缩放模式下停止旋转，方便观看
+                    rotationVelocity.x *= 0.8;
+                    rotationVelocity.y *= 0.8;
+                    // 确保缩放模式下不自动旋转
+                    mainGroup.rotation.x *= 0.98;
+                    mainGroup.rotation.y *= 0.98;
+                } else if (currentState === STATE.SCATTER) {
+                    if (isHandPresent) {
+                        const deltaX = handPos.x - lastHandPos.x;
+                        const deltaY = handPos.y - lastHandPos.y;
+
+                        // 增加灵敏度但限制最大速度
+                        if (Math.abs(deltaX) > 0.001) rotationVelocity.y += deltaX * 0.2;
+                        if (Math.abs(deltaY) > 0.001) rotationVelocity.x += deltaY * 0.1;
+
+                        lastHandPos.x = handPos.x;
+                        lastHandPos.y = handPos.y;
+                    }
+
+                    // 应用速度
+                    mainGroup.rotation.y += rotationVelocity.y;
+                    mainGroup.rotation.x += rotationVelocity.x;
+
+                    // 阻尼效果
+                    rotationVelocity.y *= 0.95;
+                    rotationVelocity.x *= 0.95;
+
+                    // 回正 X 轴，确保主要绕Y轴旋转
+                    mainGroup.rotation.x *= 0.98;
+                } else if (currentState === STATE.TREE) {
+                    // 树形态自动旋转 - 只绕Y轴旋转
+                    mainGroup.rotation.y += 0.004;
+                    // 确保X轴归零
+                    mainGroup.rotation.x *= 0.95;
+                    // 确保Z轴归零（雪花旋转可能留下Z轴旋转）
+                    mainGroup.rotation.z *= 0.95;
+                }
+                // 在下雪状态下，根据旋转速度添加风效
+                if (snowVelocities && (currentState === STATE.TREE || currentState === STATE.SCATTER)) {
+                    const windIntensity = Math.min(Math.abs(rotationVelocity.y) * 50, 1.0);
+                    if (windIntensity > 0.1) {
+                        const windDirection = new THREE.Vector3(
+                            -Math.sin(mainGroup.rotation.y),
+                            0,
+                            -Math.cos(mainGroup.rotation.y)
+                        );
+                        setWindEffect(windIntensity, windDirection);
+                    } else {
+                        setWindEffect(0.1, new THREE.Vector3(1, 0, 0)); // 轻微自然风
+                    }
+                }
+            }
+
+            function updateParticleLogic() {
+                const isZoom = currentState === STATE.ZOOM;
+                const isTree = currentState === STATE.TREE;
+
+                for (let i = 0; i < logicData.particles.length; i++) {
+                    const item = logicData.particles[i];
+                    let target = isTree ? item.treePos : item.scatterPos;
+                    if (isZoom) target = item.scatterPos; // 放大时背景保持散开
+
+                    // 散开时的呼吸效果
+                    if (!isTree) target.y += Math.sin(time + i * 0.1) * 0.01;
+
+                    // 位置插值
+                    item.currentPos.lerp(target, 0.08);
+
+                    // 更新精灵位置
+                    item.sprite.position.copy(item.currentPos);
+
+                    // 根据状态调整大小
+                    let scale = item.scale;
+                    if (isZoom) scale *= 0.5; // 聚焦时缩小
+
+                    item.sprite.scale.setScalar(scale * 1.5); // 乘以2以获得合适的视觉大小
+                }
+            }
+
+            function updateDustLogic() {
+                const dustSystem = mainGroup.children.find(child => child.type === 'Points' && child !== logicData.star);
+                if (!dustSystem) return;
+
+                const positions = dustSystem.geometry.attributes.position.array;
+                const isTree = currentState === STATE.TREE;
+
+                for (let i = 0; i < logicData.dust.length; i++) {
+                    const item = logicData.dust[i];
+
+                    if (isTree) {
+                        // 树形态：粒子向上流动并限制在圆锥内
+                        item.currentPos.y += item.velocity;
+                        if (item.currentPos.y > CONFIG.treeHeight / 2) item.currentPos.y = -CONFIG.treeHeight / 2;
+
+                        // 简单的圆柱限制，避免计算过于复杂
+                        const rMax = CONFIG.maxRadius * (1 - (item.currentPos.y + CONFIG.treeHeight / 2) / CONFIG.treeHeight) + 5;
+                        const rCurr = Math.sqrt(item.currentPos.x ** 2 + item.currentPos.z ** 2);
+                        if (rCurr > rMax) {
+                            item.currentPos.x *= 0.95;
+                            item.currentPos.z *= 0.95;
+                        }
+                    } else {
+                        // 散开形态：飞向随机点
+                        item.currentPos.lerp(item.scatterPos, 0.05);
+                    }
+
+                    positions[i * 3] = item.currentPos.x;
+                    positions[i * 3 + 1] = item.currentPos.y;
+                    positions[i * 3 + 2] = item.currentPos.z;
+                }
+                dustSystem.geometry.attributes.position.needsUpdate = true;
+            }
+            function updatePhotoLogic() {
+                // 获取相机在 mainGroup 局部坐标系下的反向位置
+                _tempVec3.copy(camera.position).applyMatrix4(mainGroup.matrixWorld.clone().invert());
 
                 photoMeshes.forEach((mesh, idx) => {
-                    mesh.getWorldPosition(worldPos);
-                    const d = worldPos.distanceTo(camPos);
-                    if (d < minDist) {
-                        minDist = d;
-                        bestIdx = idx;
+                    let targetPos, targetScale = 2.0;
+
+                    if (currentState === STATE.ZOOM && idx === zoomTargetIndex) {
+                        // 修复：计算相机前方固定距离的位置（在mainGroup的局部坐标系）
+                        const cameraWorldPos = camera.position;
+                        const cameraDirection = camera.getWorldDirection(new THREE.Vector3());
+
+                        // 计算目标位置：相机前方CONFIG.zoomDistance单位
+                        const targetWorldPos = new THREE.Vector3()
+                            .copy(cameraWorldPos)
+                            .add(cameraDirection.multiplyScalar(CONFIG.zoomDistance));
+
+                        // 转换到mainGroup的局部坐标系
+                        targetPos = mainGroup.worldToLocal(targetWorldPos);
+
+                        targetScale = 5.0;
+                        mesh.lookAt(camera.position); // 始终朝向相机
+
+                        // 平滑移动到目标位置
+                        mesh.position.lerp(targetPos, CONFIG.zoomSpeed);
+
+                        // 设置isViewingPhoto为true
+                        isViewingPhoto = true;
+                    } else {
+                        targetPos = currentState === STATE.TREE ? mesh.userData.treePos : mesh.userData.scatterPos;
+                        if (currentState !== STATE.TREE) mesh.position.y += Math.sin(time + idx) * 0.02;
+
+                        // 非聚焦状态下，根据基础旋转+公转
+                        if (currentState === STATE.SCATTER) targetScale = 3.0;
+
+                        if (currentState === STATE.TREE) {
+                            mesh.rotation.copy(mesh.userData.baseRot);
+                            mesh.rotation.y += 0.01;
+                        } else {
+                            mesh.lookAt(camera.position);
+                        }
+
+                        // 平滑移动
+                        mesh.position.lerp(targetPos, 0.1);
                     }
+
+                    // 平滑缩放
+                    const currentScale = mesh.scale.x;
+                    const newScale = THREE.MathUtils.lerp(currentScale, targetScale, 0.1);
+                    mesh.scale.setScalar(newScale);
                 });
-                zoomTargetIndex = bestIdx;
             }
-        }
 
-        function onWindowResize() {
-            const dims = updateDimensions();
-            camera.aspect = dims.width / dims.height;
-            camera.updateProjectionMatrix();
-            renderer.setSize(dims.width, dims.height);
-            composer.setSize(dims.width, dims.height);
-        }
 
-        // --- 照片上传处理 ---
-        document.getElementById('file-input').addEventListener('change', function(e) {
-            const files = e.target.files;
-            if (!files.length) return;
-            
-            let loadedCount = 0;
-            for(let i=0; i<files.length; i++) {
-                const reader = new FileReader();
-                reader.onload = function(evt) {
-                    const img = new Image();
-                    img.src = evt.target.result;
-                    img.onload = () => { 
-                        addPhotoMesh(img); 
-                        loadedCount++;
-                        updateStatus(`已加载 ${loadedCount} 张照片`, "#fff");
-                    }
+            let lastVideoTime = -1;
+            let lastPredictionTime = 0;
+
+
+            function switchToZoom() {
+                currentState = STATE.ZOOM;
+                targetState = STATE.ZOOM;
+                isViewingPhoto = true;
+                zoomStartTime = Date.now();
+
+                // 智能选择逻辑：选离镜头最近的照片
+                if (zoomTargetIndex === -1 && photoMeshes.length > 0) {
+                    let minDist = Infinity;
+                    let bestIdx = 0;
+                    const camPos = camera.position;
+                    const worldPos = new THREE.Vector3();
+
+                    photoMeshes.forEach((mesh, idx) => {
+                        mesh.getWorldPosition(worldPos);
+                        const d = worldPos.distanceTo(camPos);
+                        if (d < minDist) {
+                            minDist = d;
+                            bestIdx = idx;
+                        }
+                    });
+                    zoomTargetIndex = bestIdx;
                 }
-                reader.readAsDataURL(files[i]);
+
+                // 在放大状态下禁用旋转
+                rotationVelocity.x = 0;
+                rotationVelocity.y = 0;
             }
-        });
 
-        function addPhotoMesh(img) {
-            const tex = new THREE.Texture(img);
-            tex.needsUpdate = true;
-            tex.colorSpace = THREE.SRGBColorSpace;
-            
-            // 保持比例
-            let w = 4, h = 4;
-            if(img.width > img.height) h = 4 * (img.height/img.width);
-            else w = 4 * (img.width/img.height);
+            function onWindowResize() {
+                const dims = updateDimensions();
+                camera.aspect = dims.width / dims.height;
+                camera.updateProjectionMatrix();
+                renderer.setSize(dims.width, dims.height);
+                composer.setSize(dims.width, dims.height);
+            }
 
-            const geo = new THREE.PlaneGeometry(w, h);
-            const mat = new THREE.MeshBasicMaterial({ 
-                map: tex, side: THREE.DoubleSide 
-            });
-            const mesh = new THREE.Mesh(geo, mat);
-            
-            // 金色边框
-            const frame = new THREE.Mesh(
-                new THREE.BoxGeometry(w+0.2, h+0.2, 0.1), 
-                new THREE.MeshPhysicalMaterial({color:0xffd700, roughness:0.2, metalness:1})
-            );
-            frame.position.z = -0.06;
-            mesh.add(frame);
+            // 添加预设图片加载函数
+            function loadPresetPhotos() {
 
-            // 随机分布
-            const h_pos = (Math.random() - 0.5) * CONFIG.treeHeight;
-            const normH = (h_pos + CONFIG.treeHeight/2) / CONFIG.treeHeight;
-            const maxR = CONFIG.maxRadius * (1 - normH) + 2;
-            
-            const r = maxR * (0.6 + 0.4 * Math.random());
-            const theta = Math.random() * Math.PI * 2;
-            
-            const treePos = new THREE.Vector3(r * Math.cos(theta), h_pos, r * Math.sin(theta));
-            const scatterPos = randomSpherePoint(60);
+                // 你的图片URL
+                const photoUrls = [
+                    'https://images.weserv.nl/?url=https://youke2.picui.cn/s1/2025/12/24/694b9a26b5813.jpg&output=webp',
+                    'https://images.weserv.nl/?url=https://youke2.picui.cn/s1/2025/12/24/694b9c1a255a0.jpg&output=webp',
+                    'https://images.weserv.nl/?url=https://youke2.picui.cn/s1/2025/12/24/694b9c1bce342.jpg&output=webp',
+                    'https://images.weserv.nl/?url=https://youke2.picui.cn/s1/2025/12/24/694b9c1b24eec.jpg&output=webp',
+                    'https://images.weserv.nl/?url=https://youke2.picui.cn/s1/2025/12/24/694b9c1ac7ec7.jpg&output=webp',
+                    'https://images.weserv.nl/?url=https://youke2.picui.cn/s1/2025/12/24/694b9c1b4e0bd.jpg&output=webp',
+                    'https://images.weserv.nl/?url=https://youke2.picui.cn/s1/2025/12/24/694b9c4ac8add.jpg&output=webp',
+                    'https://images.weserv.nl/?url=https://youke2.picui.cn/s1/2025/12/24/694b9c4bb4af1.jpg&output=webp',
+                    'https://images.weserv.nl/?url=https://youke2.picui.cn/s1/2025/12/24/694b9c4cbcc5f.jpg&output=webp',
+                    'https://images.weserv.nl/?url=https://youke2.picui.cn/s1/2025/12/24/694b9c4ee1c86.jpg&output=webp',
+                    'https://images.weserv.nl/?url=https://youke2.picui.cn/s1/2025/12/24/694b9c4e26646.jpg&output=webp',
+                ];
 
-            mesh.userData = { 
-                treePos, 
-                scatterPos, 
-                baseRot: new THREE.Euler(0, theta + Math.PI/2, 0) // 面向外部
-            };
-            mesh.position.copy(treePos);
-            mesh.lookAt(new THREE.Vector3(0, h_pos, 0)); // 树状态下初始朝向中心
-            
-            photoMeshes.push(mesh);
-            mainGroup.add(mesh);
-        }
+                let loadedCount = 0;
+                const totalCount = photoUrls.length;
 
-        // 启动
-        initThree();
-        animate();
-        setupMediaPipe();
-    </script>
+                photoUrls.forEach((url, index) => {
+                    const img = new Image();
+
+                    // 先尝试使用代理
+                    img.crossOrigin = "anonymous";
+                    img.src = url;
+
+                    img.onload = () => {
+                        addPhotoMesh(img);
+                        loadedCount++;
+                        console.log(`已加载 ${loadedCount}/${totalCount} 张照片`);
+
+                        // 所有图片加载完成后可以执行某些操作
+                        if (loadedCount === totalCount) {
+                            console.log('所有预设图片加载完成');
+                        }
+                    };
+
+                    img.onerror = (e) => {
+                        console.warn(`代理加载失败，尝试直接加载: ${url}`);
+
+                        // 尝试直接加载（不使用crossOrigin）
+                        const fallbackImg = new Image();
+                        fallbackImg.src = url; // 注意：这里不使用crossOrigin
+
+                        fallbackImg.onload = () => {
+                            addPhotoMesh(fallbackImg);
+                            loadedCount++;
+                            console.log(`直接加载成功 ${loadedCount}/${totalCount}`);
+                        };
+
+                        fallbackImg.onerror = () => {
+                            console.error(`无法加载图片: ${url}`);
+                        };
+                    };
+                });
+            }
+            function addPhotoMesh(img) {
+                const tex = new THREE.Texture(img);
+                tex.needsUpdate = true;
+                tex.colorSpace = THREE.SRGBColorSpace;
+
+                // 保持比例
+                let w = 4, h = 4;
+                if (img.width > img.height) h = 4 * (img.height / img.width);
+                else w = 4 * (img.width / img.height);
+
+                const geo = new THREE.PlaneGeometry(w, h);
+                const mat = new THREE.MeshBasicMaterial({
+                    map: tex, side: THREE.DoubleSide
+                });
+                const mesh = new THREE.Mesh(geo, mat);
+
+                // 金色边框
+                const frame = new THREE.Mesh(
+                    new THREE.BoxGeometry(w + 0.2, h + 0.2, 0.1),
+                    new THREE.MeshPhysicalMaterial({ color: 0xffd700, roughness: 0.2, metalness: 1 })
+                );
+                frame.position.z = -0.06;
+                mesh.add(frame);
+
+                // 随机分布
+                const h_pos = (Math.random() - 0.5) * CONFIG.treeHeight;
+                const normH = (h_pos + CONFIG.treeHeight / 2) / CONFIG.treeHeight;
+                const maxR = CONFIG.maxRadius * (1 - normH) + 2;
+
+                const r = maxR * (0.6 + 0.4 * Math.random());
+                const theta = Math.random() * Math.PI * 2;
+
+                const treePos = new THREE.Vector3(r * Math.cos(theta), h_pos, r * Math.sin(theta));
+                const scatterPos = randomSpherePoint(60);
+
+                mesh.userData = {
+                    treePos,
+                    scatterPos,
+                    baseRot: new THREE.Euler(0, theta + Math.PI / 2, 0) // 面向外部
+                };
+                mesh.position.copy(treePos);
+                mesh.lookAt(new THREE.Vector3(0, h_pos, 0)); // 树状态下初始朝向中心
+
+                photoMeshes.push(mesh);
+                mainGroup.add(mesh);
+            }
+            // 启动
+            initThree();
+            animate();
+        </script>
 </body>
 </html>
