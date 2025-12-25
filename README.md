@@ -16,7 +16,7 @@
 
 ## 🚀 快速开始 (How to Run)
 
-### 方法 1: fork这个项目,顺手点颗✨（推荐）
+### 方法 1: fork这个项目,顺手点颗✨增加开源动力（推荐）
 
 开启 Pages: 进入仓库 Settings -> 左侧 Pages -> 在 Branch 处选择 main (或 master) -> 点击 Save。
 访问: 等待几分钟，访问 https://你的用户名.github.io/仓库名/。
